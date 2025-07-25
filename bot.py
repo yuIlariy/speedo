@@ -14,6 +14,20 @@ bot = Bot(
 )
 dp = Dispatcher()
 
+def mask_ip(ip: str) -> str:
+    # Mask IP as per pattern: 68.3R.358.16S
+    segments = ip.split(".")
+    suffixes = ['R', 'S', 'K', 'Z']
+    masked = [f"{seg}{suffixes[i]}" for i, seg in enumerate(segments)]
+    return ".".join(masked)
+
+@dp.message(Command("start"))
+async def start_handler(message: Message):
+    if message.from_user.id != ADMIN_ID:
+        await message.answer("🚫 This bot is restricted to admin use only.")
+        return
+    await message.answer("👋 Hello! Send /speedtest to check VPS performance.")
+
 @dp.message(Command("speedtest"))
 async def speedtest_handler(message: Message):
     if message.from_user.id != ADMIN_ID:
@@ -30,6 +44,7 @@ async def speedtest_handler(message: Message):
 
     server = st.get_best_server()
     client = st.config['client']
+    masked_ip = mask_ip(client['ip'])
 
     caption = (
         f"<b>🚀 SPEEDTEST INFO 🚀</b>\n"
@@ -47,13 +62,12 @@ async def speedtest_handler(message: Message):
         f"├ Latitude: {server['lat']}\n"
         f"├ Longitude: {server['lon']}\n\n"
         f"<b>👤 CLIENT DETAILS 👤</b>\n"
-        f"├ IP Address: {client['ip']}\n"
+        f"├ IP Address: {masked_ip}\n"
         f"├ Latitude: {client['lat']}\n"
         f"├ Longitude: {client['lon']}\n"
         f"├ Country: {client['country']}\n"
         f"├ ISP: {client['isp']}\n"
-        f"├ ISP Rating: {client.get('rating', 'N/A')}\n"
-        f"├ Powered by NAm."
+        f"├ <b>🏆Powered by NAm.🚨<b>"
     )
 
     await message.answer_photo(photo=THUMBNAIL_URL, caption=caption)
