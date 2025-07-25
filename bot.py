@@ -36,7 +36,7 @@ async def start_handler(message: Message):
     if message.from_user.id != ADMIN_ID:
         await message.answer("🚫 This bot is restricted to admin use only.")
         return
-    await message.answer("👋 Hello! Send /speedtest to check VPS performance.")
+    await message.answer("🤩 My preecious! Send /speedtest to check VPS performance.")
 
 @dp.message(Command("speedtest"))
 async def speedtest_handler(message: Message):
