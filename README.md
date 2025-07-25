@@ -1,6 +1,8 @@
 # ⚡ Speedo Bot — Telegram VPS Speedtest 📡
 
-This bot runs a full-speed diagnostic on your VPS using `speedtest-cli`, formats the results with enhanced metadata, masks IPs intelligently, and sends the output with a thumbnail via Telegram. Only the admin can trigger the test.
+Not just a bot — a sysadmin assistant. A one-bot NOC panel for your VPS.  
+Speedo performs full diagnostics, plots performance trends, monitors health, and exports logs — all from Telegram.  
+Built on `aiogram` and optimized for deployment clarity, emoji-rich feedback, and admin-only control 👑🤩
 
 ---
 
@@ -15,16 +17,19 @@ This bot runs a full-speed diagnostic on your VPS using `speedtest-cli`, formats
   - Client location + ISP
   - Masked IP (randomized)
   - Thumbnail preview
-- `/trend` — Generates speed graph from last 30 results
+- `/trend` — Speed graph using the last 30 tests
+- `/monthlytrend` — Graph showing only results from the current month
 - `/lastspeed` — Displays the latest speedtest snapshot in text format
-- `/healthscore` — Rates VPS performance (ping, bandwidth) with emoji verdict
-- `/sysinfo` — Current VPS info:
+- `/healthscore` — Emoji-based VPS performance rating (ping, bandwidth)
+- `/pingtest` — ICMP ping test to 8.8.8.8 (packet loss, latency stats)
+- `/exportlog` — Sends the full `speedlog.json` file as a document
+- `/sysinfo` — Current VPS system info:
   - 🧠 CPU model
   - ⏱️ Uptime
   - 💾 Disk usage
   - 📦 Memory usage
   - 📊 Load average
-- 🖼️ Cleanly formatted results with HTML captions
+- 🖼️ Cleanly formatted results using HTML + emoji
 - 🔒 Admin-only command access
 - ⚙️ Built on Aiogram 3.7+
 
@@ -83,36 +88,30 @@ python3 bot.py
 
 ### 🧠 Run in Background with Screen
 
-- To run the bot in the background:
-  ```bash
-  screen -S speedo
-  ```
-  ```bash
-  python3 bot.py
-  ```
-  - Detach: `Ctrl + A`, then `Ctrl + D`
+```bash
+screen -S speedo
+python3 bot.py
+```
 
-- To stop:
-  ```bash
-  screen -r speedo
-  ```
-  - Use `Ctrl + C` to stop the bot
-  ```bash
-  screen -S speedo -X quit
-  ```
+Detach: `Ctrl + A`, then `Ctrl + D`  
+Resume: `screen -r speedo`  
+Stop: `Ctrl + C`, then `screen -S speedo -X quit`
 
 ---
 
 ## 🧪 Available Commands
 
-| Command         | Description                                 |
-|-----------------|---------------------------------------------|
-| `/start`        | Welcome & usage guide                       |
-| `/speedtest`    | Full VPS speedtest with thumbnail           |
-| `/trend`        | Speed history graph (last 30 tests)         |
-| `/lastspeed`    | Last speedtest summary in text              |
-| `/healthscore`  | VPS performance rating (emoji + metrics)    |
-| `/sysinfo`      | VPS system info snapshot                    |
+| Command           | Description                                      |
+|-------------------|--------------------------------------------------|
+| `/start`          | Welcome & usage guide                           |
+| `/speedtest`      | Full VPS speedtest with thumbnail                |
+| `/trend`          | Speed history graph (last 30 tests)              |
+| `/monthlytrend`   | Plot only the tests from the current month       |
+| `/lastspeed`      | Latest speedtest summary                        |
+| `/healthscore`    | VPS performance rating with emoji verdict        |
+| `/pingtest`       | Ping 8.8.8.8 to check network health             |
+| `/exportlog`      | Download `speedlog.json`                         |
+| `/sysinfo`        | VPS system snapshot                             |
 
 ---
 
