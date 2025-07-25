@@ -172,3 +172,10 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
+
+
+# 🚀 Speedo Bot — Telegram VPS Speedtest
+# 🧠 Extended by Yuilariy x MS Copilot
+# 📎 Original repo: https://github.com/yuIlariy/speedo
+# 🤩 Fork it. Use it. Credit it. Rule it 👑
