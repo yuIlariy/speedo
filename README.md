@@ -16,6 +16,8 @@ This bot runs a full-speed diagnostic on your VPS using `speedtest-cli`, formats
   - Masked IP (randomized)
   - Thumbnail preview
 - `/trend` — Generates speed graph from last 30 results
+- `/lastspeed` — Displays the latest speedtest snapshot in text format
+- `/healthscore` — Rates VPS performance (ping, bandwidth) with emoji verdict
 - `/sysinfo` — Current VPS info:
   - 🧠 CPU model
   - ⏱️ Uptime
@@ -103,12 +105,14 @@ python3 bot.py
 
 ## 🧪 Available Commands
 
-| Command       | Description                          |
-|---------------|--------------------------------------|
-| `/start`      | Welcome & usage guide                |
-| `/speedtest`  | Full VPS speedtest with thumbnail    |
-| `/trend`      | Speed history graph (last 30 tests)  |
-| `/sysinfo`    | VPS system info snapshot             |
+| Command         | Description                                 |
+|-----------------|---------------------------------------------|
+| `/start`        | Welcome & usage guide                       |
+| `/speedtest`    | Full VPS speedtest with thumbnail           |
+| `/trend`        | Speed history graph (last 30 tests)         |
+| `/lastspeed`    | Last speedtest summary in text              |
+| `/healthscore`  | VPS performance rating (emoji + metrics)    |
+| `/sysinfo`      | VPS system info snapshot                    |
 
 ---
 
@@ -126,4 +130,4 @@ matplotlib
 
 Original repo: [yuIlariy/speedo](https://github.com/yuIlariy/speedo)  
 🍥 Telegram VPS bot extension by 🧠 Yuilariy x MS Copilot  
-🌍 Speedtest with style. Fork it. Own it. Rule it 👑
+🌍 Speedtest with style. Fork it. Use it. Credit it. Rule it 👑
