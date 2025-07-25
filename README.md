@@ -44,7 +44,14 @@ sudo apt update
 sudo apt install python3 python3-pip
 ```
 
-### 3. Install Required Packages
+### 3. Create Virtual Environment (recommended)
+
+```bash
+python3 -m venv speedo
+source speedo/bin/activate
+```
+
+### 4. Install Required Packages
 
 ```bash
 pip3 install -r requirements.txt
