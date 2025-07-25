@@ -3,11 +3,8 @@ from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.types import Message
 from aiogram.filters import Command
-from aiogram import F
 from speedtest import Speedtest
-import os
-
-TOKEN = os.getenv("BOT_TOKEN", "your-token-here")
+from config import TOKEN  # ← now using config file
 
 bot = Bot(token=TOKEN, parse_mode=ParseMode.HTML)
 dp = Dispatcher()
