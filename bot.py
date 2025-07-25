@@ -485,7 +485,7 @@ async def sysinfo_handler(message: Message):
     await message.answer(f"<b>🚨 VPS System Info</b>\n\n{info}")
 
 
-AUTO_INTERVAL = 180  # seconds (testing mode)
+AUTO_INTERVAL = 3600  # seconds (testing mode)
 
 def get_uptime():
     boot_time = datetime.fromtimestamp(psutil.boot_time())
