@@ -7,7 +7,7 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
-from aiogram.types import Message
+from aiogram.types import Message, FSInputFile
 from aiogram.filters import Command
 from aiogram.client.default import DefaultBotProperties
 from speedtest import Speedtest
@@ -153,7 +153,8 @@ async def trend_handler(message: Message):
 
     path = generate_plot()
     if path:
-        await message.answer_photo(photo=open(path, "rb"))
+        photo = FSInputFile(path)
+        await message.answer_photo(photo=photo)
     else:
         await message.answer("⚠️ No results found to plot.")
 
@@ -172,7 +173,6 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
 
 
 # 🚀 Speedo Bot — Telegram VPS Speedtest
