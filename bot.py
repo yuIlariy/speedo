@@ -90,12 +90,40 @@ async def start_handler(message: Message):
     if message.from_user.id != ADMIN_ID:
         await message.answer("🚫 This bot is restricted to admin use only.")
         return
-    await message.answer(
-        "👋 Welcome, master of machines!\n\n"
-        "⚙️ Your VPS companion is standing by.\n"
-        "💡 Try /speedtest, /trend, /lastspeed, /healthscore, or /sysinfo\n\n"
-        "📈 Your server. Your rules. Your graphs.👑"
+
+    thumbnail_url = "https://telegra.ph/file/ec17880d61180d3312d6a.jpg"
+    await message.answer_photo(
+        photo=thumbnail_url,
+        caption=(
+            "<b>👋 Welcome, master of machines!</b>\n\n"
+            "🧠 Speedo Bot is locked, loaded, and watching your VPS like royalty 👑\n\n"
+            "💬 Need help? Use /help to view your full command arsenal.\n\n"
+            "📈 Graphs, logs, health checks — all under your control."
+        )
     )
+
+@dp.message(Command("help"))
+async def help_handler(message: Message):
+    if message.from_user.id != ADMIN_ID:
+        await message.answer("🚫 Help is reserved for sysadmin eyes only.")
+        return
+
+    thumbnail_url = "https://telegra.ph/file/ec17880d61180d3312d6a.jpg"
+    await message.answer_photo(
+        photo=thumbnail_url,
+        caption=(
+            "<b>🧾 Command Panel — Speedo NOC Suite 👑</b>\n\n"
+            "/speedtest — 🚨 run speedtest\n"
+            "/sysinfo — ☁️ Sys info\n"
+            "/lastspeed — ⚡ latest speedtest\n"
+            "/trend — 📈 graphical trend for recent 30 tests 📈\n"
+            "/healthscore — 🎖️ Precious VPS speed & ping healthscore 👑\n"
+            "/pingtest — 🚀 ICMP Ping Check 🎈\n"
+            "/exportlog — 🧾 Log dump\n"
+            "/monthlytrend — 📈 monthly trend speed graph 📉"
+        )
+    )
+
 
 @dp.message(Command("speedtest"))
 async def speedtest_handler(message: Message):
