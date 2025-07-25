@@ -96,7 +96,7 @@ async def start_handler(message: Message):
         photo=thumbnail_url,
         caption=(
             "<b>👋 Welcome, master of machines!</b>\n\n"
-            "🧠 Speedo Bot is locked, loaded, and watching your VPS like royalty 👑\n\n"
+            "🚀 Speedo Bot is locked, loaded, and watching your VPS like royalty 👑\n\n"
             "💬 Need help? Use /help to view your full command arsenal.\n\n"
             "📈 Graphs, logs, health checks — all under your control."
         )
@@ -116,10 +116,10 @@ async def help_handler(message: Message):
             "/speedtest — 🚨 run speedtest\n"
             "/sysinfo — ☁️ Sys info\n"
             "/lastspeed — ⚡ latest speedtest\n"
-            "/trend — 📈 graphical trend for recent 30 tests 📈\n"
+            "/trend — 📈 graphical trend for upto 30 recent tests 📈\n"
             "/healthscore — 🎖️ Precious VPS speed & ping healthscore 👑\n"
             "/pingtest — 🚀 ICMP Ping Check 🎈\n"
-            "/exportlog — 🧾 Log dump\n"
+            "/exportlog — 🧾 speedtest Log dump\n"
             "/monthlytrend — 📈 monthly trend speed graph 📉"
         )
     )
