@@ -29,6 +29,13 @@ Built on `aiogram` and optimized for deployment clarity, emoji-rich feedback, an
   - 💾 Disk usage
   - 📦 Memory usage
   - 📊 Load average
+    - Load average
+- `/bootcheck` — VPS boot time & uptime snapshot (admin only)
+
+- Auto Speedtest loop:
+  - Runs silently every hour
+  - Appends results to speedlog.json
+  - Sends HTML summary to admin with timestamp & uptime
 - 🖼️ Cleanly formatted results using HTML + emoji
 - 🔒 Admin-only command access
 - ⚙️ Built on Aiogram 3.7+
@@ -121,7 +128,7 @@ screen -S speedo -X quit
 | `/pingtest`       | Ping 8.8.8.8 to check network health             |
 | `/exportlog`      | Download `speedlog.json`                         |
 | `/sysinfo`        | VPS system snapshot                             |
-
+| `/bootcheck`      | VPS boot time & uptime                           |
 ---
 
 ## 📦 Requirements
