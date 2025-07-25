@@ -29,7 +29,7 @@ Built on `aiogram` and optimized for deployment clarity, emoji-rich feedback, an
   - 💾 Disk usage
   - 📦 Memory usage
   - 📊 Load average
-    - Load average
+  
 - `/bootcheck` — VPS boot time & uptime snapshot (admin only)
 
 - Auto Speedtest loop:
