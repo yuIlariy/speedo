@@ -90,12 +90,20 @@ python3 bot.py
 
 ```bash
 screen -S speedo
+```
+```bash
 python3 bot.py
 ```
 
 Detach: `Ctrl + A`, then `Ctrl + D`  
-Resume: `screen -r speedo`  
-Stop: `Ctrl + C`, then `screen -S speedo -X quit`
+Resume: 
+```bash
+screen -r speedo
+```
+Stop: `Ctrl + C`, then 
+```bash
+screen -S speedo -X quit
+```
 
 ---
 
