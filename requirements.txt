@@ -1,2 +1,4 @@
 aiogram
 speedtest-cli
+psutil
+matplotlib
