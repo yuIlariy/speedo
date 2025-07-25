@@ -4,9 +4,13 @@ from aiogram.enums import ParseMode
 from aiogram.types import Message
 from aiogram.filters import Command
 from speedtest import Speedtest
-from config import TOKEN  # ← now using config file
+from config import TOKEN
+from aiogram.client.default import DefaultBotProperties  # 👈 new import
 
-bot = Bot(token=TOKEN, parse_mode=ParseMode.HTML)
+bot = Bot(
+    token=TOKEN,
+    default=DefaultBotProperties(parse_mode=ParseMode.HTML)  # 👈 correct usage
+)
 dp = Dispatcher()
 
 @dp.message(Command("speedtest"))
