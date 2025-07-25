@@ -214,6 +214,97 @@ async def healthscore_handler(message: Message):
 
 
 
+@dp.message(Command("monthlytrend"))
+async def monthlytrend_handler(message: Message):
+    if message.from_user.id != ADMIN_ID:
+        await message.answer("🚫 Admin only.")
+        return
+
+    now = datetime.utcnow()
+    current_month = now.month
+    current_year = now.year
+
+    try:
+        with open(RESULTS_LOG) as f:
+            data = json.load(f)
+
+        month_data = [
+            d for d in data
+            if datetime.fromisoformat(d["timestamp"]).month == current_month
+            and datetime.fromisoformat(d["timestamp"]).year == current_year
+        ]
+
+        if not month_data:
+            await message.answer("📭 No tests found for this month.")
+            return
+
+        timestamps = [datetime.fromisoformat(d["timestamp"]) for d in month_data]
+        downloads = [d["download"] for d in month_data]
+        uploads = [d["upload"] for d in month_data]
+
+        plt.figure(figsize=(10, 5))
+        plt.plot(timestamps, downloads, label="Download (Mbps)", color="blue")
+        plt.plot(timestamps, uploads, label="Upload (Mbps)", color="green")
+        plt.legend()
+        plt.title("📅 Monthly Speed Trends")
+        plt.xlabel("Time")
+        plt.ylabel("Mbps")
+        plt.grid()
+        plt.tight_layout()
+
+        monthly_path = "results/speedplot_monthly.png"
+        plt.savefig(monthly_path)
+
+        photo = FSInputFile(monthly_path)
+        await message.answer_photo(photo=photo)
+    except Exception as e:
+        await message.answer(f"⚠️ Error plotting monthly trend\n{e}")
+
+
+@dp.message(Command("exportlog"))
+async def exportlog_handler(message: Message):
+    if message.from_user.id != ADMIN_ID:
+        await message.answer("🚫 Admin only.")
+        return
+
+    if not os.path.exists(RESULTS_LOG):
+        await message.answer("📭 Log file is missing.")
+        return
+
+    document = FSInputFile(RESULTS_LOG)
+    await message.answer_document(document, caption="🧾 Log dump: speedlog.json")
+
+
+@dp.message(Command("pingtest"))
+async def pingtest_handler(message: Message):
+    if message.from_user.id != ADMIN_ID:
+        await message.answer("🚫 Admin only.")
+        return
+
+    try:
+        output = subprocess.check_output("ping -c 5 8.8.8.8", shell=True).decode()
+        loss_line = [line for line in output.splitlines() if "packet loss" in line]
+        latency_line = [line for line in output.splitlines() if "min/avg/max" in line]
+
+        loss = loss_line[0].strip() if loss_line else "N/A"
+        latency = latency_line[0].strip() if latency_line else "N/A"
+
+        verdict = "🔥 Stable" if "0% packet loss" in loss else (
+            "⚠️ Okay" if "1%" in loss or "2%" in loss else "❌ Poor"
+        )
+
+        reply = (
+            f"<b>🧪 Ping Test (8.8.8.8)</b>\n"
+            f"{verdict}\n\n"
+            f"📡 {loss}\n"
+            f"📶 {latency}"
+        )
+        await message.answer(reply)
+    except Exception as e:
+        await message.answer(f"⚠️ Ping test failed\n{e}")
+
+
+
 @dp.message(Command("trend"))
 async def trend_handler(message: Message):
     if message.from_user.id != ADMIN_ID:
