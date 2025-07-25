@@ -365,7 +365,44 @@ async def trend_handler(message: Message):
         await message.answer("🚫 Admin only.")
         return
 
-    path, trend_summary = generate_plot(return_summary=True)  # Make sure generate_plot returns (plot_path, summary)
+    def generate_plot(return_summary=False):
+        try:
+            with open(RESULTS_LOG, "r") as f:
+                data = json.load(f)
+            recent = data[-30:]  # Adjust as needed
+
+            timestamps = [datetime.fromisoformat(d["timestamp"]) for d in recent]
+            downloads = [d["download"] for d in recent]
+            uploads = [d["upload"] for d in recent]
+
+            summary = "unknown"
+            if max(uploads) < 2 or max(downloads) < 20:
+                summary = "dip"
+            elif min(uploads) > 15 and min(downloads) > 50:
+                summary = "smooth"
+            elif uploads[-1] - uploads[0] > 20:
+                summary = "spike"
+            elif max(uploads) - min(uploads) < 1 and max(downloads) - min(downloads) < 5:
+                summary = "stagnant"
+
+            plt.figure(figsize=(10, 5))
+            plt.plot(timestamps, downloads, label="⬇️ Download", color="blue", marker="o")
+            plt.plot(timestamps, uploads, label="⬆️ Upload", color="green", marker="o")
+            plt.legend()
+            plt.title("📈 Speed Trend")
+            plt.xlabel("Time")
+            plt.ylabel("Mbps")
+            plt.grid()
+            plt.tight_layout()
+
+            path = "results/speedplot.png"
+            plt.savefig(path)
+
+            return (path, summary) if return_summary else path
+        except Exception:
+            return (None, "error") if return_summary else None
+
+    path, trend_summary = generate_plot(return_summary=True)
 
     if path:
         photo = FSInputFile(path)
@@ -395,16 +432,19 @@ async def trend_handler(message: Message):
                 "📈 Latest trend — let’s dissect it together!",
                 "🧐 Speed story over time. Any surprises?",
                 "⚙️ Here's how the network’s been behaving lately..."
+            ],
+            "error": [
+                "⚠️ Couldn’t analyze trend, but here’s the graph.",
+                "💥 Plot rendered, analysis went rogue.",
+                "🤖 Chart saved, but summary’s scrambled."
             ]
         }
 
-        # Pick caption set based on detected trend
-        captions = caption_bank.get(trend_summary, caption_bank["unknown"])
-        caption = random.choice(captions)
-
+        caption = random.choice(caption_bank.get(trend_summary, caption_bank["unknown"]))
         await message.answer_photo(photo=photo, caption=caption)
     else:
         await message.answer("⚠️ No results found to plot.")
+
 
 
 @dp.message(Command("sysinfo"))
