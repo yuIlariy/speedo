@@ -275,11 +275,23 @@ async def exportlog_handler(message: Message):
     await message.answer_document(document, caption="🧾 Log dump: speedlog.json")
 
 
+
 @dp.message(Command("pingtest"))
 async def pingtest_handler(message: Message):
     if message.from_user.id != ADMIN_ID:
         await message.answer("🚫 Admin only.")
         return
+
+    # 🎯 Randomized intro messages
+    intros = [
+        "🏓 Launching packets toward Google DNS… 🛰️",
+        "🔍 Spinning up the ping cannon... get ready for stats, sysadmin 👑",
+        "📡 Checking latency like a network ninja 🥷",
+        "🧪 Running ping diagnostic… a few pongs and we’ll know!",
+        "🚀 Sending echo requests into cyberspace…",
+        "⚙️ Testing line quality. Expect verdicts in milliseconds 🔬"
+    ]
+    await message.answer(random.choice(intros))
 
     try:
         output = subprocess.check_output("ping -c 5 8.8.8.8", shell=True).decode()
@@ -294,7 +306,7 @@ async def pingtest_handler(message: Message):
         )
 
         reply = (
-            f"<b>🧪 Ping Test (8.8.8.8)</b>\n"
+            f"<b>🧪 Ping Test Results (Google DNS)</b>\n"
             f"{verdict}\n\n"
             f"📡 {loss}\n"
             f"📶 {latency}"
@@ -302,6 +314,7 @@ async def pingtest_handler(message: Message):
         await message.answer(reply)
     except Exception as e:
         await message.answer(f"⚠️ Ping test failed\n{e}")
+
 
 
 
