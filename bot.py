@@ -483,6 +483,66 @@ async def sysinfo_handler(message: Message):
     info = get_sysinfo()
     await message.answer(f"<b>🚨 VPS System Info</b>\n\n{info}")
 
+
+AUTO_INTERVAL = 180  # seconds (1 hour)
+
+def get_uptime():
+    boot_time = datetime.fromtimestamp(psutil.boot_time())
+    now = datetime.utcnow()
+    return str(now - boot_time).split('.')[0]
+
+@dp.message(Command("bootcheck"))
+async def bootcheck_handler(message: Message):
+    if message.from_user.id != ADMIN_ID:
+        await message.answer("🚫 Admin only.")
+        return
+
+    boot_time = datetime.fromtimestamp(psutil.boot_time())
+    now = datetime.utcnow()
+    uptime = str(now - boot_time).split('.')[0]
+
+    reply = (
+        f"🖥 <b>VPS Boot Check</b>\n"
+        f"📅 <b>Boot Time (UTC):</b> {boot_time.isoformat()}\n"
+        f"⏱ <b>Uptime:</b> {uptime}"
+    )
+
+    await message.answer(reply)
+
+async def run_autotest_and_notify():
+    st = Speedtest()
+    st.get_best_server()
+    download = st.download() / 1_000_000
+    upload = st.upload() / 1_000_000
+    ping = st.results.ping
+    timestamp = datetime.utcnow().isoformat()
+
+    save_result(download, upload, ping, timestamp)
+
+    caption = (
+        f"⏰ <b>Hourly Auto Speedtest</b>\n"
+        f"🕒 <b>Time:</b> {timestamp}\n"
+        f"⬇️ <b>Download:</b> {download:.2f} Mbps\n"
+        f"⬆️ <b>Upload:</b> {upload:.2f} Mbps\n"
+        f"📶 <b>Ping:</b> {ping:.2f} ms\n"
+        f"🖥 <b>VPS Uptime:</b> {get_uptime()}"
+    )
+
+    await bot.send_message(chat_id=ADMIN_ID, text=caption)
+
+async def auto_monitor():
+    while True:
+        try:
+            await run_autotest_and_notify()
+        except Exception as e:
+            await bot.send_message(
+                chat_id=ADMIN_ID,
+                text=f"⚠️ <b>Auto-monitor error</b>\n<b>Error:</b> {e}"
+            )
+        await asyncio.sleep(AUTO_INTERVAL)
+
+
+
 async def main():
     print("✅ Speedo deployed successfully, hedgehog 🤩.")
     await bot.delete_webhook(drop_pending_updates=True)
