@@ -145,6 +145,65 @@ async def speedtest_handler(message: Message):
 
     await message.answer_photo(photo=THUMBNAIL_URL, caption=caption)
 
+
+@dp.message_handler(commands=["lastspeed"], user_id=ADMINS)
+async def cmd_lastspeed(message: types.Message):
+    try:
+        with open("speedlog.json", "r") as f:
+            data = json.load(f)
+            latest = data[-1]  # Most recent result
+
+        text = (
+            f"📦 Latest Speed Test:\n"
+            f"🕒 {latest['timestamp']}\n"
+            f"⬇️ Download: {latest['download']} Mbps\n"
+            f"⬆️ Upload: {latest['upload']} Mbps\n"
+            f"📶 Ping: {latest['ping']} ms"
+        )
+        await message.reply(text)
+    except Exception as e:
+        await message.reply(f"⚠️ Error reading log: {e}")
+
+
+@dp.message_handler(commands=["healthscore"], user_id=ADMINS)
+async def cmd_healthscore(message: types.Message):
+    try:
+        with open("speedlog.json", "r") as f:
+            latest = json.load(f)[-1]
+
+        # Thresholds (you can tweak these)
+        score = 0
+        dl = latest['download']
+        ul = latest['upload']
+        ping = latest['ping']
+
+        if dl >= 100: score += 2
+        elif dl >= 50: score += 1
+
+        if ul >= 30: score += 2
+        elif ul >= 10: score += 1
+
+        if ping <= 20: score += 2
+        elif ping <= 50: score += 1
+
+        verdicts = {
+            5: "⚡ Superb: VPS is flying!",
+            3: "📈 Moderate: Acceptable for most tasks.",
+            1: "🛑 Poor: You may be throttled.",
+            0: "❌ Offline or extremely slow."
+        }
+
+        rank = verdicts.get(score, "🌐 Unknown status.")
+
+        await message.reply(
+            f"🧠 Health Score: {score}/6\n{rank}\n"
+            f"⬇️ {dl} Mbps | ⬆️ {ul} Mbps | 📶 {ping} ms"
+        )
+
+    except Exception as e:
+        await message.reply(f"⚠️ Error calculating score: {e}")
+
+
 @dp.message(Command("trend"))
 async def trend_handler(message: Message):
     if message.from_user.id != ADMIN_ID:
