@@ -242,6 +242,45 @@ async def monthlytrend_handler(message: Message):
         downloads = [d["download"] for d in month_data]
         uploads = [d["upload"] for d in month_data]
 
+        # 🧠 Simple trend classification
+        trend = "unknown"
+        if max(uploads) < 2 or max(downloads) < 20:
+            trend = "dip"
+        elif min(uploads) > 15 and min(downloads) > 50:
+            trend = "smooth"
+        elif uploads[-1] - uploads[0] > 20:
+            trend = "spike"
+        elif max(uploads) - min(uploads) < 1 and max(downloads) - min(downloads) < 5:
+            trend = "stagnant"
+
+        captions = {
+            "spike": [
+                "🚀 Monthly speed spike in motion. We’ve got lift-off 📅",
+                "📈 Performance shot up this month. Keep the trend alive!",
+                "⚡️ Speed burst spotted. ISP finally behaving?"
+            ],
+            "dip": [
+                "🌪️ Monthly turbulence detected. Hold your packets tight!",
+                "📉 Consistency took a holiday this month.",
+                "⚠️ Not our best month. Maybe it's time to switch plans?"
+            ],
+            "smooth": [
+                "✅ This month’s speed graph is looking crisp.",
+                "🧘‍♂️ Smooth performance all through the month.",
+                "📊 Monthly zen mode activated. We love stability."
+            ],
+            "stagnant": [
+                "📎 Not much movement this month… just humming along.",
+                "📆 Flat graph, flat vibes. Is no change a good thing?",
+                "😐 Stability or stagnation? You decide."
+            ],
+            "unknown": [
+                "📅 Here’s the speed trend for this month. Interpret wisely!",
+                "🧐 Monthly graph incoming. Tell me what you see.",
+                "🧾 Latest monthly analytics, hot off the VPS!"
+            ]
+        }
+
         plt.figure(figsize=(10, 5))
         plt.plot(timestamps, downloads, label="Download (Mbps)", color="blue")
         plt.plot(timestamps, uploads, label="Upload (Mbps)", color="green")
@@ -256,9 +295,12 @@ async def monthlytrend_handler(message: Message):
         plt.savefig(monthly_path)
 
         photo = FSInputFile(monthly_path)
-        await message.answer_photo(photo=photo)
+        caption = random.choice(captions.get(trend, captions["unknown"]))
+        await message.answer_photo(photo=photo, caption=caption)
+
     except Exception as e:
         await message.answer(f"⚠️ Error plotting monthly trend\n{e}")
+
 
 
 @dp.message(Command("exportlog"))
@@ -317,19 +359,53 @@ async def pingtest_handler(message: Message):
 
 
 
-
 @dp.message(Command("trend"))
 async def trend_handler(message: Message):
     if message.from_user.id != ADMIN_ID:
         await message.answer("🚫 Admin only.")
         return
 
-    path = generate_plot()
+    path, trend_summary = generate_plot(return_summary=True)  # Make sure generate_plot returns (plot_path, summary)
+
     if path:
         photo = FSInputFile(path)
-        await message.answer_photo(photo=photo)
+
+        caption_bank = {
+            "spike": [
+                "🚨 Speed surge detected! Someone paid the ISP bill? 📈",
+                "🎢 That spike tho… hold on to your packets!",
+                "🔋 Throughput explosion. We hit warp speed ⚡"
+            ],
+            "dip": [
+                "⚠️ Speed dip spotted. Time to run a pingtest?",
+                "🕳️ That trough hurts. Network ghost in the wires?",
+                "🌪️ Bottleneck vibes. Who stole our Mbps?"
+            ],
+            "stagnant": [
+                "😐 Flatline detected. Stability or staleness?",
+                "🧊 Speed’s been chilling. No news, good news?",
+                "📎 Graph’s stuck — just like your downloads?"
+            ],
+            "smooth": [
+                "✅ Stable speeds. Graph looking clean!",
+                "🧘‍♂️ Network in zen mode. Nothing out of place 🌀",
+                "📊 That’s some VPS consistency right there!"
+            ],
+            "unknown": [
+                "📈 Latest trend — let’s dissect it together!",
+                "🧐 Speed story over time. Any surprises?",
+                "⚙️ Here's how the network’s been behaving lately..."
+            ]
+        }
+
+        # Pick caption set based on detected trend
+        captions = caption_bank.get(trend_summary, caption_bank["unknown"])
+        caption = random.choice(captions)
+
+        await message.answer_photo(photo=photo, caption=caption)
     else:
         await message.answer("⚠️ No results found to plot.")
+
 
 @dp.message(Command("sysinfo"))
 async def sysinfo_handler(message: Message):
