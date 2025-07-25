@@ -102,4 +102,6 @@ rm logs/bot.log
 
 ## 📎 DEVELOPER 🤩🚨
 
-[github.com/yuIlariy/speedo](https://github.com/yuIlariy/speedo)
+[yuIlariy](https://github.com/yuIlariy) 
+🤩Wiu Speedtest CLI 🚨 VPS hedgehog 😑
+fork and give credits👑
