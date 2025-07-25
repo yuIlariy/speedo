@@ -66,8 +66,8 @@ async def speedtest_handler(message: Message):
         f"├ Latitude: {client['lat']}\n"
         f"├ Longitude: {client['lon']}\n"
         f"├ Country: {client['country']}\n"
-        f"├ ISP: {client['isp']}\n"
-        f"├ <b>🏆Powered by NAm.🚨<b>"
+        f"├ ISP: {client['isp']}\n\n"
+        f"<b>🏆Powered by NAm.🚨</b>"
     )
 
     await message.answer_photo(photo=THUMBNAIL_URL, caption=caption)
