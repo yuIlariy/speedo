@@ -96,6 +96,7 @@ python3 bot.py
 ```
 
 Detach: `Ctrl + A`, then `Ctrl + D`  
+
 Resume: 
 ```bash
 screen -r speedo
