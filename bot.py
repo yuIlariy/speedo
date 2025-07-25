@@ -146,62 +146,72 @@ async def speedtest_handler(message: Message):
     await message.answer_photo(photo=THUMBNAIL_URL, caption=caption)
 
 
-@dp.message_handler(commands=["lastspeed"], user_id=ADMINS)
-async def cmd_lastspeed(message: types.Message):
+@dp.message(Command("lastspeed"))
+async def lastspeed_handler(message: Message):
+    if message.from_user.id != ADMIN_ID:
+        await message.answer("🚫 Admin only.")
+        return
+
     try:
-        with open("speedlog.json", "r") as f:
+        with open(RESULTS_LOG) as f:
             data = json.load(f)
-            latest = data[-1]  # Most recent result
+        latest = data[-1]
 
-        text = (
-            f"📦 Latest Speed Test:\n"
-            f"🕒 {latest['timestamp']}\n"
-            f"⬇️ Download: {latest['download']} Mbps\n"
-            f"⬆️ Upload: {latest['upload']} Mbps\n"
-            f"📶 Ping: {latest['ping']} ms"
+        reply = (
+            f"📦 <b>Latest Speed Test</b>\n"
+            f"🕒 <b>Time:</b> {latest['timestamp']}\n"
+            f"⬇️ <b>Download:</b> {latest['download']} Mbps\n"
+            f"⬆️ <b>Upload:</b> {latest['upload']} Mbps\n"
+            f"📶 <b>Ping:</b> {latest['ping']} ms"
         )
-        await message.reply(text)
+        await message.answer(reply)
     except Exception as e:
-        await message.reply(f"⚠️ Error reading log: {e}")
+        await message.answer(f"⚠️ Could not read last result.\nError: {e}")
 
 
-@dp.message_handler(commands=["healthscore"], user_id=ADMINS)
-async def cmd_healthscore(message: types.Message):
+
+@dp.message(Command("healthscore"))
+async def healthscore_handler(message: Message):
+    if message.from_user.id != ADMIN_ID:
+        await message.answer("🚫 Admin only.")
+        return
+
     try:
-        with open("speedlog.json", "r") as f:
+        with open(RESULTS_LOG) as f:
             latest = json.load(f)[-1]
 
-        # Thresholds (you can tweak these)
+        dl = latest["download"]
+        ul = latest["upload"]
+        ping = latest["ping"]
         score = 0
-        dl = latest['download']
-        ul = latest['upload']
-        ping = latest['ping']
 
-        if dl >= 100: score += 2
-        elif dl >= 50: score += 1
-
-        if ul >= 30: score += 2
-        elif ul >= 10: score += 1
-
-        if ping <= 20: score += 2
-        elif ping <= 50: score += 1
+        # Scoring logic
+        score += 2 if dl >= 100 else 1 if dl >= 50 else 0
+        score += 2 if ul >= 30 else 1 if ul >= 10 else 0
+        score += 2 if ping <= 20 else 1 if ping <= 50 else 0
 
         verdicts = {
-            5: "⚡ Superb: VPS is flying!",
-            3: "📈 Moderate: Acceptable for most tasks.",
-            1: "🛑 Poor: You may be throttled.",
-            0: "❌ Offline or extremely slow."
+            6: "💎 Perfect: VPS is blazing.",
+            5: "⚡ Great: Smooth and responsive.",
+            4: "📈 Decent: No bottlenecks detected.",
+            3: "📉 Moderate: Might struggle under load.",
+            2: "🪫 Weak: Below ideal performance.",
+            1: "🛑 Poor: Network degraded.",
+            0: "❌ Offline or unusable."
         }
 
-        rank = verdicts.get(score, "🌐 Unknown status.")
-
-        await message.reply(
-            f"🧠 Health Score: {score}/6\n{rank}\n"
-            f"⬇️ {dl} Mbps | ⬆️ {ul} Mbps | 📶 {ping} ms"
+        verdict = verdicts.get(score, "🌐 Unknown status.")
+        reply = (
+            f"<b>🧠 Health Score:</b> {score}/6\n"
+            f"{verdict}\n\n"
+            f"⬇️ <b>Download:</b> {dl} Mbps\n"
+            f"⬆️ <b>Upload:</b> {ul} Mbps\n"
+            f"📶 <b>Ping:</b> {ping} ms"
         )
-
+        await message.answer(reply)
     except Exception as e:
-        await message.reply(f"⚠️ Error calculating score: {e}")
+        await message.answer(f"⚠️ Error calculating health score.\n{e}")
+
 
 
 @dp.message(Command("trend"))
