@@ -6,17 +6,25 @@ This bot runs a full-speed diagnostic on your VPS using `speedtest-cli`, formats
 
 ## 🛠️ Features
 
-- `/start` — Welcome and usage hint (admin only)
-- `/speedtest` — Full-speed diagnostic with:
+- `/start` — Welcome message with usage tips (admin only)
+- `/speedtest` — Full diagnostic:
   - Download / Upload / Ping
+  - VPS uptime
   - Data sent / received
   - Server location + sponsor
   - Client location + ISP
   - Masked IP (randomized)
-  - Thumbnail image
-- 🔒 Admin-only access
-- ⚙️ Aiogram 3.7+ compatible
-- 🖼️ Sends result as a photo with formatted caption
+  - Thumbnail preview
+- `/trend` — Generates speed graph from last 30 results
+- `/sysinfo` — Current VPS info:
+  - 🧠 CPU model
+  - ⏱️ Uptime
+  - 💾 Disk usage
+  - 📦 Memory usage
+  - 📊 Load average
+- 🖼️ Cleanly formatted results with HTML captions
+- 🔒 Admin-only command access
+- ⚙️ Built on Aiogram 3.7+
 
 ---
 
@@ -76,42 +84,39 @@ python3 bot.py
   - Detach: `Ctrl + A`, then `Ctrl + D`
 
 - To stop:
-    ```bash
-    screen -r speedo
-    ```
-    - CTRL+C
-  - then
-    ```bash
-    screen -S speedo -X quit
-    ```
+  ```bash
+  screen -r speedo
+  ```
+  - Use `Ctrl + C` to stop the bot
+  ```bash
+  screen -S speedo -X quit
+  ```
 
 ---
 
-## 🧪 Example Commands
+## 🧪 Available Commands
 
-- `/start` → Replies with usage hint  
-- `/speedtest` → Sends thumbnail + full metrics
-
----
-
-## 🧰 Built With
-
-- [Aiogram 3.7+](https://docs.aiogram.dev/en/latest/)
-- [speedtest-cli](https://github.com/sivel/speedtest-cli)
-- Python 3.10+
+| Command       | Description                          |
+|---------------|--------------------------------------|
+| `/start`      | Welcome & usage guide                |
+| `/speedtest`  | Full VPS speedtest with thumbnail    |
+| `/trend`      | Speed history graph (last 30 tests)  |
+| `/sysinfo`    | VPS system info snapshot             |
 
 ---
 
-## 🧹 Optional Cleanup
+## 📦 Requirements
 
-```bash
-rm logs/bot.log
+```txt
+aiogram>=3.7.0
+speedtest-cli
+matplotlib
 ```
 
 ---
 
-## 📎 DEVELOPER 🤩🚨
+## 📎 Developer Credits 🤩🚨
 
-[yuIlariy](https://github.com/yuIlariy) 
-🤩Wiu Speedtest CLI 🚨 VPS hedgehog 😑
-fork and give credits👑
+Original repo: [yuIlariy/speedo](https://github.com/yuIlariy/speedo)  
+🍥 Telegram VPS bot extension by 🧠 Yuilariy x MS Copilot  
+🌍 Speedtest with style. Fork it. Own it. Rule it 👑
