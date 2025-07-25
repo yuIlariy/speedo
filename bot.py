@@ -485,7 +485,7 @@ async def sysinfo_handler(message: Message):
     await message.answer(f"<b>🚨 VPS System Info</b>\n\n{info}")
 
 
-AUTO_INTERVAL = 180  # seconds (1 hour)
+AUTO_INTERVAL = 180  # seconds (testing mode)
 
 def get_uptime():
     boot_time = datetime.fromtimestamp(psutil.boot_time())
@@ -542,10 +542,9 @@ async def auto_monitor():
             )
         await asyncio.sleep(AUTO_INTERVAL)
 
-
-
 async def main():
     print("✅ Speedo deployed successfully, hedgehog 🤩.")
+    asyncio.create_task(auto_monitor())  # 🚀 Kick off background scheduler
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 
