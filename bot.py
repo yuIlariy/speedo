@@ -529,22 +529,20 @@ async def run_autotest_and_notify():
         f"🖥 <b>VPS Uptime:</b> {get_uptime()}"
     )
 
-    await bot.send_message(chat_id=ADMIN_ID, text=caption)
+    try:
+        await bot.send_message(chat_id=ADMIN_ID, text=caption)
+    except Exception:
+        pass  # Ignore send failure during early startup
 
 async def auto_monitor():
     while True:
-        try:
-            await run_autotest_and_notify()
-        except Exception as e:
-            await bot.send_message(
-                chat_id=ADMIN_ID,
-                text=f"⚠️ <b>Auto-monitor error</b>\n<b>Error:</b> {e}"
-            )
+        await run_autotest_and_notify()
         await asyncio.sleep(AUTO_INTERVAL)
 
 async def main():
     print("✅ Speedo deployed successfully, hedgehog 🤩.")
-    asyncio.create_task(auto_monitor())  # 🚀 Kick off background scheduler
+    await asyncio.sleep(15)  # ⏳ Grace delay before monitor loop
+    asyncio.create_task(auto_monitor())  # 🚀 Launch the auto speedtest loop
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 
