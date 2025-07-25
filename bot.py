@@ -1,4 +1,5 @@
 import asyncio
+import random
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.types import Message
@@ -15,11 +16,20 @@ bot = Bot(
 dp = Dispatcher()
 
 def mask_ip(ip: str) -> str:
-    # Mask IP as per pattern: 68.3R.358.16S
+    # Randomly replaces digits with uppercase letters to mask IP segments
     segments = ip.split(".")
-    suffixes = ['R', 'S', 'K', 'Z']
-    masked = [f"{seg}{suffixes[i]}" for i, seg in enumerate(segments)]
-    return ".".join(masked)
+    masked_segments = []
+
+    for seg in segments:
+        masked = ""
+        for ch in seg:
+            if ch.isdigit() and random.random() < 0.5:
+                masked += random.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+            else:
+                masked += ch
+        masked_segments.append(masked)
+
+    return ".".join(masked_segments)
 
 @dp.message(Command("start"))
 async def start_handler(message: Message):
