@@ -121,7 +121,8 @@ async def help_handler(message: Message):
             "/healthscore — 🎖️ Precious VPS speed & ping healthscore 👑\n"
             "/pingtest — 🚀 ICMP Ping Check 🎈\n"
             "/exportlog — 🧾 speedtest Log dump\n"
-            "/monthlytrend — 📈 monthly trend speed graph 📉"
+            "/monthlytrend — 📈 monthly trend speed graph 📉\n"
+            "/bootcheck — 🚀 VPS Boot Check ⚡"
         )
     )
 
