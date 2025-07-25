@@ -66,14 +66,24 @@ python3 bot.py
 
 ### 🧠 Run in Background with Screen
 
-```bash
-sudo apt install screen
-screen -S speedo
-python3 bot.py
-```
+- To run the bot in the background:
+  ```bash
+  screen -S speedo
+  ```
+  ```bash
+  python3 bot.py
+  ```
+  - Detach: `Ctrl + A`, then `Ctrl + D`
 
-> ⏹️ To detach screen: `Ctrl + A`, then `D`  
-> 🔙 To resume screen: `screen -r speedo`
+- To stop:
+    ```bash
+    screen -r speedo
+    ```
+    - CTRL+C
+  - then
+    ```bash
+    screen -S speedo -X quit
+    ```
 
 ---
 
