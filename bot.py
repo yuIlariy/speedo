@@ -93,8 +93,8 @@ async def start_handler(message: Message):
     await message.answer(
         "👋 Welcome, master of machines!\n\n"
         "⚙️ Your VPS companion is standing by.\n"
-        "💡 Try /speedtest, /trend, /lastspeed, /healthscore, or /sysinfo\n"
-        "📈 Your server. Your rules. Your graphs."
+        "💡 Try /speedtest, /trend, /lastspeed, /healthscore, or /sysinfo\n\n"
+        "📈 Your server. Your rules. Your graphs.👑"
     )
 
 @dp.message(Command("speedtest"))
