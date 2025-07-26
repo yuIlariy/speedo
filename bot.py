@@ -359,11 +359,12 @@ async def pingtest_handler(message: Message, command: CommandObject):
 
     input_arg = command.args.strip() if command.args else None
 
-    # 🧠 Argument-based override or fallback to config/defaults
+    # ✅ Safe fallback and consistent assignment
     if input_arg:
         targets = {input_arg: input_arg}
         intro = f"📡 Target specified: <code>{input_arg}</code>. Pinging…"
     else:
+        targets = get_ping_targets()
         intro = "🏓 Launching packets toward default targets…"
 
     await message.answer(intro)
@@ -386,7 +387,6 @@ async def pingtest_handler(message: Message, command: CommandObject):
             results.append(f"<b>{name}</b>\n❌ Error: {e}\n")
 
     await message.answer("<b>🧪 Ping Test Results</b>\n\n" + "\n".join(results))
-
 
 
 
