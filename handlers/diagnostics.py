@@ -58,3 +58,35 @@ async def sysinfo_handler(message: Message):
     info = get_sysinfo()
     await message.answer(f"<b>🚨 VPS System Info</b>\n\n{info}")
 
+
+
+from aiogram import Router
+from aiogram.types import Message
+from aiogram.filters import Command
+from datetime import datetime
+import psutil
+
+from config import ADMIN_ID
+
+router = Router()
+
+@router.message(Command("bootcheck"))
+async def bootcheck_handler(message: Message):
+    if message.from_user.id != ADMIN_ID:
+        await message.answer("🚫 Admin only.")
+        return
+
+    boot_time = datetime.fromtimestamp(psutil.boot_time())
+    now = datetime.utcnow()
+    uptime = str(now - boot_time).split('.')[0]
+
+    reply = (
+        f"🖥 <b>VPS Boot Check</b>\n"
+        f"📅 <b>Boot Time (UTC):</b> {boot_time.isoformat()}\n"
+        f"⏱ <b>Uptime:</b> {uptime}"
+    )
+
+    await message.answer(reply)
+
+
+
