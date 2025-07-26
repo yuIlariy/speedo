@@ -129,6 +129,9 @@ screen -S speedo -X quit
 | `/exportlog`      | Download `speedlog.json`                         |
 | `/sysinfo`        | VPS system snapshot                             |
 | `/bootcheck`      | VPS boot time & uptime                           |
+| `/syschart`      | Graphical telemetry panel with caption overlay
+    |
+
 ---
 
 ## 📦 Requirements
