@@ -13,7 +13,7 @@ from aiogram.types import Message, FSInputFile
 from aiogram.filters import Command
 from aiogram.client.default import DefaultBotProperties
 
-from speedtest import Speedtest
+from speedtest import speedtest
 from config import TOKEN, ADMIN_ID, THUMBNAIL_URL
 
 # Handler routers
