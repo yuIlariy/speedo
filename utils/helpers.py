@@ -38,6 +38,13 @@ def get_sysinfo() -> str:
     except Exception:
         cpu_name = sys.processor or "Unknown"
 
+    # ✅ System load average (1, 5, 15 min)
+    try:
+        load_1, load_5, load_15 = os.getloadavg()
+        load_avg = f"{load_1:.2f}, {load_5:.2f}, {load_15:.2f}"
+    except Exception:
+        load_avg = "Unavailable"
+
     mem_used = round(mem.used / (1024 ** 3), 1)
     mem_total = round(mem.total / (1024 ** 3), 1)
     disk_used = round(disk.used / (1024 ** 3), 1)
@@ -49,7 +56,8 @@ def get_sysinfo() -> str:
         f"<b>⏱️ Uptime</b>: {uptime_str}\n"
         f"<b>💾 Memory</b>: {mem_used}GB / {mem_total}GB\n"
         f"<b>📀 Disk</b>: {disk_used}GB / {disk_total}GB\n"
-        f"<b>⚙️ CPU Usage</b>: {psutil.cpu_percent()}%"
+        f"<b>⚙️ CPU Usage</b>: {psutil.cpu_percent()}%\n"
+        f"<b>📊 Load Average</b>: {load_avg}"
     )
 
 
