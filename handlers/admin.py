@@ -1,13 +1,12 @@
+import os
 from aiogram import Router
 from aiogram.types import Message
 from aiogram.filters import Command
-from aiogram.filters.command import CommandObject
+from aiogram.types.input_file import FSInputFile
+
+from config import ADMIN_ID, RESULTS_LOG
 
 router = Router()
-
-import os
-from aiogram.types.input_file import FSInputFile
-from config import ADMIN_ID, RESULTS_LOG
 
 @router.message(Command("exportlog"))
 async def exportlog_handler(message: Message):
@@ -21,5 +20,4 @@ async def exportlog_handler(message: Message):
 
     document = FSInputFile(RESULTS_LOG)
     await message.answer_document(document, caption="🧾 Log dump: speedlog.json")
-
 
