@@ -29,7 +29,7 @@ def get_sysinfo() -> str:
     if minutes: formatted_uptime.append(f"{minutes}m")
     uptime_str = " ".join(formatted_uptime)
 
-    # ✅ Grab CPU name via shell for clarity
+    # ✅ Grab CPU name via shell
     try:
         cpu_name = subprocess.check_output(
             "lscpu | grep 'Model name' | awk -F: '{print $2}'",
@@ -38,15 +38,19 @@ def get_sysinfo() -> str:
     except Exception:
         cpu_name = sys.processor or "Unknown"
 
+    mem_used = round(mem.used / (1024 ** 3), 1)
+    mem_total = round(mem.total / (1024 ** 3), 1)
+    disk_used = round(disk.used / (1024 ** 3), 1)
+    disk_total = round(disk.total / (1024 ** 3), 1)
+
     return (
         f"<b>🖥️ System</b>: {sys.system} {sys.release} ({sys.machine})\n"
         f"<b>🧮 CPU</b>: {cpu_name}\n"
         f"<b>⏱️ Uptime</b>: {uptime_str}\n"
-        f"<b>💾 Memory</b>: {mem.used // (1024 ** 3)}GB / {mem.total // (1024 ** 3)}GB\n"
-        f"<b>📀 Disk</b>: {disk.used // (1024 ** 3)}GB / {disk.total // (1024 ** 3)}GB\n"
+        f"<b>💾 Memory</b>: {mem_used}GB / {mem_total}GB\n"
+        f"<b>📀 Disk</b>: {disk_used}GB / {disk_total}GB\n"
         f"<b>⚙️ CPU Usage</b>: {psutil.cpu_percent()}%"
     )
-
 
 
 def get_uptime() -> str:
