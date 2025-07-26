@@ -14,3 +14,10 @@ def get_sysinfo() -> str:
         f"<b>⚙️ CPU</b>: {psutil.cpu_percent()}% used"
     )
 
+
+def get_uptime():
+    boot_time = datetime.fromtimestamp(psutil.boot_time())
+    now = datetime.utcnow()
+    return str(now - boot_time).split('.')[0]
+
+
