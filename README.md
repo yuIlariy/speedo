@@ -32,10 +32,19 @@ Built on `aiogram` and optimized for deployment clarity, emoji-rich feedback, an
   
 - `/bootcheck` — VPS boot time & uptime snapshot (admin only)
 
+- `/syschart` — Graphical system telemetry panel:
+  - RAM & Disk usage bars
+  - CPU load + temperature
+  - Load average trend
+  - Network I/O stats
+  - Last speedtest overlay
+  - Random caption flair 🤩
+
 - Auto Speedtest loop:
   - Runs silently every hour
   - Appends results to speedlog.json
   - Sends HTML summary to admin with timestamp & uptime
+    
 - 🖼️ Cleanly formatted results using HTML + emoji
 - 🔒 Admin-only command access
 - ⚙️ Built on Aiogram 3.7+
