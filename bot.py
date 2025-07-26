@@ -13,7 +13,7 @@ from aiogram.types import Message, FSInputFile
 from aiogram.filters import Command
 from aiogram.client.default import DefaultBotProperties
 
-import speedtest
+import speedtest  # ✅ external speedtest-cli library
 from config import TOKEN, ADMIN_ID, THUMBNAIL_URL
 
 # Handler routers
@@ -37,7 +37,7 @@ dp.include_router(admin_router)
 @dp.message(Command("start"))
 async def start_handler(message: Message):
     if message.from_user.id != ADMIN_ID:
-        await message.answer("🚫 This bot is restricted to admin use only.")
+        await message.answer("🚫 This bot is restricted to admin only.")
         return
 
     await message.answer_photo(
@@ -73,7 +73,7 @@ async def help_handler(message: Message):
     )
 
 
-# 🕹️ Boot system info helpers (optional inline — could be moved to helpers.py)
+# 🧠 System info helpers
 def get_sysinfo():
     def run(cmd): return subprocess.check_output(cmd, shell=True).decode().strip()
     info = {
@@ -90,7 +90,7 @@ def get_uptime():
 
 
 # 🧪 Monitoring loop
-from speedtest.monitor import auto_monitor
+from speedo_core.monitor import auto_monitor  # ✅ renamed folder to avoid collision
 
 async def main():
     print("✅ Speedo deployed successfully, hedgehog 🤩.")
