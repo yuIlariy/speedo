@@ -1,12 +1,18 @@
-from aiogram import Router, F
+from datetime import datetime
+import matplotlib.pyplot as plt
+import json
+import random
+from aiogram.filters import Command
+from aiogram.types.input_file import FSInputFile
+
+from aiogram import Router
 from aiogram.types import Message
 from aiogram.filters import Command
-from datetime import datetime
-from speedtest import Speedtest
 
-from config import ADMIN_ID, THUMBNAIL_URL
-from utils.helpers import get_uptime, mask_ip, save_result
-from utils.helpers import generate_plot
+import speedtest  # ✅ external CLI wrapper
+
+from config import ADMIN_ID, THUMBNAIL_URL, RESULTS_LOG
+from utils.helpers import get_uptime, mask_ip, save_result, generate_plot
 
 router = Router()
 
@@ -17,7 +23,8 @@ async def speedtest_handler(message: Message):
         return
 
     await message.answer("Running speedtest... ⏳")
-    st = Speedtest()
+
+    st = speedtest.Speedtest()
     st.get_best_server()
     download = st.download() / 1_000_000
     upload = st.upload() / 1_000_000
@@ -53,14 +60,11 @@ async def speedtest_handler(message: Message):
         f"├ Longitude: {client['lon']}\n"
         f"├ Country: {client['country']}\n"
         f"├ ISP: {client['isp']}\n\n"
-        f"<b>🏆Powered by NAm.🚨</b>"
+        f"<b>🏆 Powered by NAm. 🚨</b>"
     )
 
     await message.answer_photo(photo=THUMBNAIL_URL, caption=caption)
 
-
-import json
-from config import RESULTS_LOG, ADMIN_ID
 
 @router.message(Command("lastspeed"))
 async def lastspeed_handler(message: Message):
@@ -129,10 +133,6 @@ async def healthscore_handler(message: Message):
 
 
 
-import matplotlib.pyplot as plt
-from aiogram.types.input_file import FSInputFile
-import random
-
 @router.message(Command("monthlytrend"))
 async def monthlytrend_handler(message: Message):
     if message.from_user.id != ADMIN_ID:
@@ -140,17 +140,14 @@ async def monthlytrend_handler(message: Message):
         return
 
     now = datetime.utcnow()
-    current_month = now.month
-    current_year = now.year
-
     try:
         with open(RESULTS_LOG) as f:
             data = json.load(f)
 
         month_data = [
             d for d in data
-            if datetime.fromisoformat(d["timestamp"]).month == current_month
-            and datetime.fromisoformat(d["timestamp"]).year == current_year
+            if datetime.fromisoformat(d["timestamp"]).month == now.month
+            and datetime.fromisoformat(d["timestamp"]).year == now.year
         ]
 
         if not month_data:
@@ -161,7 +158,6 @@ async def monthlytrend_handler(message: Message):
         downloads = [d["download"] for d in month_data]
         uploads = [d["upload"] for d in month_data]
 
-        # 🧠 Simple trend classification
         trend = "unknown"
         if max(uploads) < 2 or max(downloads) < 20:
             trend = "dip"
@@ -210,20 +206,16 @@ async def monthlytrend_handler(message: Message):
         plt.grid()
         plt.tight_layout()
 
-        monthly_path = "results/speedplot_monthly.png"
-        plt.savefig(monthly_path)
-
-        photo = FSInputFile(monthly_path)
-        caption = random.choice(captions.get(trend, captions["unknown"]))
-        await message.answer_photo(photo=photo, caption=caption)
-
+        path = "results/speedplot_monthly.png"
+        plt.savefig(path)
+        await message.answer_photo(
+            photo=FSInputFile(path),
+            caption=random.choice(captions.get(trend, captions["unknown"]))
+        )
     except Exception as e:
         await message.answer(f"⚠️ Error plotting monthly trend\n{e}")
 
 
-import matplotlib.pyplot as plt
-from aiogram.types.input_file import FSInputFile
-import random
 
 @router.message(Command("trend"))
 async def trend_handler(message: Message):
@@ -231,49 +223,39 @@ async def trend_handler(message: Message):
         await message.answer("🚫 Admin only.")
         return
 
-    def generate_plot(return_summary=False):
-        try:
-            with open(RESULTS_LOG, "r") as f:
-                data = json.load(f)
-            recent = data[-30:]  # Adjust as needed
+    try:
+        with open(RESULTS_LOG) as f:
+            data = json.load(f)
+        recent = data[-30:]
 
-            timestamps = [datetime.fromisoformat(d["timestamp"]) for d in recent]
-            downloads = [d["download"] for d in recent]
-            uploads = [d["upload"] for d in recent]
+        timestamps = [datetime.fromisoformat(d["timestamp"]) for d in recent]
+        downloads = [d["download"] for d in recent]
+        uploads = [d["upload"] for d in recent]
 
-            summary = "unknown"
-            if max(uploads) < 2 or max(downloads) < 20:
-                summary = "dip"
-            elif min(uploads) > 15 and min(downloads) > 50:
-                summary = "smooth"
-            elif uploads[-1] - uploads[0] > 20:
-                summary = "spike"
-            elif max(uploads) - min(uploads) < 1 and max(downloads) - min(downloads) < 5:
-                summary = "stagnant"
+        summary = "unknown"
+        if max(uploads) < 2 or max(downloads) < 20:
+            summary = "dip"
+        elif min(uploads) > 15 and min(downloads) > 50:
+            summary = "smooth"
+        elif uploads[-1] - uploads[0] > 20:
+            summary = "spike"
+        elif max(uploads) - min(uploads) < 1 and max(downloads) - min(downloads) < 5:
+            summary = "stagnant"
 
-            plt.figure(figsize=(10, 5))
-            plt.plot(timestamps, downloads, label="⬇️ Download", color="blue", marker="o")
-            plt.plot(timestamps, uploads, label="⬆️ Upload", color="green", marker="o")
-            plt.legend()
-            plt.title("📈 Speed Trend")
-            plt.xlabel("Time")
-            plt.ylabel("Mbps")
-            plt.grid()
-            plt.tight_layout()
+        plt.figure(figsize=(10, 5))
+        plt.plot(timestamps, downloads, label="⬇️ Download", color="blue", marker="o")
+        plt.plot(timestamps, uploads, label="⬆️ Upload", color="green", marker="o")
+        plt.legend()
+        plt.title("📈 Speed Trend")
+        plt.xlabel("Time")
+        plt.ylabel("Mbps")
+        plt.grid()
+        plt.tight_layout()
 
-            path = "results/speedplot.png"
-            plt.savefig(path)
+        path = "results/speedplot.png"
+        plt.savefig(path)
 
-            return (path, summary) if return_summary else path
-        except Exception:
-            return (None, "error") if return_summary else None
-
-    path, trend_summary = generate_plot(return_summary=True)
-
-    if path:
-        photo = FSInputFile(path)
-
-        caption_bank = {
+        captions = {
             "spike": [
                 "🚨 Speed surge detected! Someone paid the ISP bill? 📈",
                 "🎢 That spike tho… hold on to your packets!",
@@ -298,17 +280,14 @@ async def trend_handler(message: Message):
                 "📈 Latest trend — let’s dissect it together!",
                 "🧐 Speed story over time. Any surprises?",
                 "⚙️ Here's how the network’s been behaving lately..."
-            ],
-            "error": [
-                "⚠️ Couldn’t analyze trend, but here’s the graph.",
-                "💥 Plot rendered, analysis went rogue.",
-                "🤖 Chart saved, but summary’s scrambled."
             ]
         }
 
-        caption = random.choice(caption_bank.get(trend_summary, caption_bank["unknown"]))
-        await message.answer_photo(photo=photo, caption=caption)
-    else:
-        await message.answer("⚠️ No results found to plot.")
+        await message.answer_photo(
+            photo=FSInputFile(path),
+            caption=random.choice(captions.get(summary, captions["unknown"]))
+        )
+    except Exception as e:
+        await message.answer(f"⚠️ No results found to plot.\n{e}")
 
 
