@@ -47,3 +47,14 @@ async def pingtest_handler(message: Message, command: CommandObject):
 
 
 
+from config import ADMIN_ID
+from utils.helpers import get_sysinfo
+
+@router.message(Command("sysinfo"))
+async def sysinfo_handler(message: Message):
+    if message.from_user.id != ADMIN_ID:
+        await message.answer("🚫 Admin only.")
+        return
+    info = get_sysinfo()
+    await message.answer(f"<b>🚨 VPS System Info</b>\n\n{info}")
+
