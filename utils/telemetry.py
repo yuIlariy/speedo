@@ -2,31 +2,20 @@ import psutil, socket, platform, matplotlib.pyplot as plt
 from io import BytesIO
 from datetime import datetime
 import subprocess, shutil
+import random
 
-def run_speedtest():
-    try:
-        result = subprocess.run(["speedtest-cli", "--simple"], capture_output=True, text=True, timeout=10)
-        lines = result.stdout.splitlines()
-        return {
-            'Ping': lines[0].split()[-2] + " ms",
-            'Download': lines[1].split()[-2] + " Mbps",
-            'Upload': lines[2].split()[-2] + " Mbps"
-        }
-    except Exception:
-        return {'Ping': 'N/A', 'Download': 'N/A', 'Upload': 'N/A'}
-
-def get_cpu_temp():
-    if shutil.which("sensors"):
-        try:
-            out = subprocess.run(["sensors"], capture_output=True, text=True)
-            for line in out.stdout.splitlines():
-                if "Package id 0" in line or "Tdie" in line:
-                    for part in line.split():
-                        if "°C" in part:
-                            return part
-        except:
-            pass
-    return "N/A"
+CAPTION_BANK = [
+    "📡 Monitoring the machine gods — telemetry inbound.",
+    "🦔 VPS status served fresh. Nothing escapes this dashboard.",
+    "🔍 Full system scan complete. Operational excellence achieved.",
+    "🚀 Telemetry check: speeds, cores, and cosmic load curves.",
+    "🧊 Cool, quiet, stable. Your VPS is meditating.",
+    "📈 Performance snapshot: clean lines, zero regrets.",
+    "🪄 Load balances, disks spin, packets fly. Magic confirmed.",
+    "🎯 Speedtest fusion and system vitals — looking sharp.",
+    "🧵 Telemetry weave complete. You’re plugged into the core.",
+    "⚙️ Everything’s under control. Just how you built it.",
+]
 
 async def generate_syschart():
     cpu_usage = psutil.cpu_percent(interval=1)
@@ -34,7 +23,9 @@ async def generate_syschart():
 
     plt.style.use('dark_background' if dark_mode else 'default')
     fig, axs = plt.subplots(2, 2, figsize=(10, 6))
-    fig.suptitle("🧭 VPS System Overview", fontsize=14)
+
+    # ✨ Inject a random caption as chart title
+    fig.suptitle(random.choice(CAPTION_BANK), fontsize=14)
 
     hostname = socket.gethostname()
     uptime = datetime.fromtimestamp(psutil.boot_time()).strftime("%Y-%m-%d %H:%M:%S")
@@ -80,4 +71,5 @@ async def generate_syschart():
     plt.savefig(buf, format='png', dpi=150)
     buf.seek(0)
     return buf
+
 
