@@ -88,7 +88,7 @@ def get_uptime():
 from speedo_core.monitor import auto_monitor  # ✅ avoid shadowing
 
 async def main():
-    print("✅ Speedo deployed successfully, hedgehog 🤩.")
+    print("✅ Speedo deployed successfully, hedgehog 🦔.")
     await asyncio.sleep(15)
     asyncio.create_task(auto_monitor(bot))
     await bot.delete_webhook(drop_pending_updates=True)
