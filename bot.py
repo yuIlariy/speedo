@@ -348,44 +348,45 @@ async def exportlog_handler(message: Message):
 
 
 
+from utils.ping_targets import get_ping_targets
+
 @dp.message(Command("pingtest"))
-async def pingtest_handler(message: Message):
+async def pingtest_handler(message: Message, command: CommandObject):
     if message.from_user.id != ADMIN_ID:
         await message.answer("🚫 Admin only.")
         return
 
-    # 🎯 Randomized intro messages
-    intros = [
-        "🏓 Launching packets toward Google DNS… 🛰️",
-        "🔍 Spinning up the ping cannon... get ready for stats, sysadmin 👑",
-        "📡 Checking latency like a network ninja 🥷",
-        "🧪 Running ping diagnostic… a few pongs and we’ll know!",
-        "🚀 Sending echo requests into cyberspace…",
-        "⚙️ Testing line quality. Expect verdicts in milliseconds 🔬"
-    ]
-    await message.answer(random.choice(intros))
+    input_arg = command.args.strip() if command.args else None
 
-    try:
-        output = subprocess.check_output("ping -c 5 8.8.8.8", shell=True).decode()
-        loss_line = [line for line in output.splitlines() if "packet loss" in line]
-        latency_line = [line for line in output.splitlines() if "min/avg/max" in line]
+    # 🧠 Argument-based override or fallback to config/defaults
+    if input_arg:
+        targets = {input_arg: input_arg}
+        intro = f"📡 Target specified: <code>{input_arg}</code>. Pinging…"
+    else:
+        targets = get_ping_targets(config)
+        intro = "🏓 Launching packets toward default targets…"
 
-        loss = loss_line[0].strip() if loss_line else "N/A"
-        latency = latency_line[0].strip() if latency_line else "N/A"
+    await message.answer(intro)
 
-        verdict = "🔥 Stable" if "0% packet loss" in loss else (
-            "⚠️ Okay" if "1%" in loss or "2%" in loss else "❌ Poor"
-        )
+    results = []
+    for name, ip in targets.items():
+        try:
+            output = subprocess.check_output(f"ping -c 5 {ip}", shell=True).decode()
+            loss_line = [line for line in output.splitlines() if "packet loss" in line]
+            latency_line = [line for line in output.splitlines() if "min/avg/max" in line]
 
-        reply = (
-            f"<b>🧪 Ping Test Results (Google DNS)</b>\n"
-            f"{verdict}\n\n"
-            f"📡 {loss}\n"
-            f"📶 {latency}"
-        )
-        await message.answer(reply)
-    except Exception as e:
-        await message.answer(f"⚠️ Ping test failed\n{e}")
+            loss = loss_line[0].strip() if loss_line else "N/A"
+            latency = latency_line[0].strip() if latency_line else "N/A"
+            verdict = "🔥 Stable" if "0% packet loss" in loss else (
+                "⚠️ Okay" if "1%" in loss or "2%" in loss else "❌ Poor"
+            )
+
+            results.append(f"<b>{name}</b>\n{verdict}\n📡 {loss}\n📶 {latency}\n")
+        except Exception as e:
+            results.append(f"<b>{name}</b>\n❌ Error: {e}\n")
+
+    await message.answer("<b>🧪 Ping Test Results</b>\n\n" + "\n".join(results))
+
 
 
 
