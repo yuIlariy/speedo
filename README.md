@@ -53,6 +53,8 @@ Built on `aiogram` and optimized for deployment clarity, emoji-rich feedback, an
 
 ## 📦 Installation
 
+ - `There's 15sec cool down after deploy to enable auto monitor without errors (bot will boot after 15sec 🦔)`
+
 ### 1. Clone the Repo
 
 ```bash
