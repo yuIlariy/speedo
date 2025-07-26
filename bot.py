@@ -7,6 +7,7 @@ import subprocess
 from datetime import datetime
 import matplotlib.pyplot as plt
 from aiogram import Bot, Dispatcher
+from aiogram.filters.command import CommandObject
 from aiogram.enums import ParseMode
 from aiogram.types import Message, FSInputFile
 from aiogram.filters import Command
