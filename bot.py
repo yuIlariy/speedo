@@ -32,7 +32,6 @@ bot = Bot(
     token=TOKEN,
     default=DefaultBotProperties(parse_mode=ParseMode.HTML)
 )
-dp = Dispatcher()
 
 RESULTS_LOG = "results/speedlog.json"
 TREND_IMAGE = "results/speedplot.png"
