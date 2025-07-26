@@ -44,10 +44,11 @@ def get_cpu_temp():
 async def generate_syschart():
     cpu_usage = psutil.cpu_percent(interval=1)
     dark_mode = cpu_usage > 50
+    caption = random.choice(CAPTION_BANK)
 
     plt.style.use('dark_background' if dark_mode else 'default')
     fig, axs = plt.subplots(2, 2, figsize=(10, 6))
-    fig.suptitle(random.choice(CAPTION_BANK), fontsize=14)
+    fig.suptitle(caption, fontsize=14)
 
     hostname = socket.gethostname()
     uptime = datetime.fromtimestamp(psutil.boot_time()).strftime("%Y-%m-%d %H:%M:%S")
@@ -92,5 +93,6 @@ async def generate_syschart():
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.savefig(buf, format='png', dpi=150)
     buf.seek(0)
-    return buf
+    return buf, caption
+
 
