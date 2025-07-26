@@ -1,6 +1,6 @@
 import asyncio
 from datetime import datetime
-from speedtest import speedtest
+from speedtest import Speedtest
 
 from config import ADMIN_ID
 from utils.helpers import get_uptime, save_result
