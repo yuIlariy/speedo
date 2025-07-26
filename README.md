@@ -21,7 +21,7 @@ Built on `aiogram` and optimized for deployment clarity, emoji-rich feedback, an
 - `/monthlytrend` — Graph showing only results from the current month
 - `/lastspeed` — Displays the latest speedtest snapshot in text format
 - `/healthscore` — Emoji-based VPS performance rating (ping, bandwidth)
-- `/pingtest` — ICMP ping test to 8.8.8.8 (packet loss, latency stats)
+- `/pingtest` — ICMP ping test to 8.8.8.8, 1.1.1.1 ... if target address not specified (packet loss, latency stats)
 - `/exportlog` — Sends the full `speedlog.json` file as a document
 - `/sysinfo` — Current VPS system info:
   - 🧠 CPU model
@@ -125,7 +125,7 @@ screen -S speedo -X quit
 | `/monthlytrend`   | Plot only the tests from the current month       |
 | `/lastspeed`      | Latest speedtest summary                        |
 | `/healthscore`    | VPS performance rating with emoji verdict        |
-| `/pingtest`       | Ping 8.8.8.8 to check network health             |
+| `/pingtest`       | Ping a target address(or defaults) to check network health             |
 | `/exportlog`      | Download `speedlog.json`                         |
 | `/sysinfo`        | VPS system snapshot                             |
 | `/bootcheck`      | VPS boot time & uptime                           |
