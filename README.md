@@ -150,6 +150,7 @@ screen -S speedo -X quit
 aiogram>=3.7.0
 speedtest-cli
 matplotlib
+psutil
 ```
 
 ---
