@@ -1,5 +1,13 @@
+import os
+import json
+import random
 import platform
 import psutil
+import matplotlib.pyplot as plt
+
+from datetime import datetime
+from config import RESULTS_LOG, TREND_IMAGE
+
 
 def get_sysinfo() -> str:
     sys = platform.uname()
@@ -14,20 +22,11 @@ def get_sysinfo() -> str:
         f"<b>⚙️ CPU</b>: {psutil.cpu_percent()}% used"
     )
 
-
-def get_uptime():
+def get_uptime() -> str:
     boot_time = datetime.fromtimestamp(psutil.boot_time())
     now = datetime.utcnow()
     return str(now - boot_time).split('.')[0]
 
-
-import os
-import json
-import random
-from datetime import datetime
-import matplotlib.pyplot as plt
-
-from config import RESULTS_LOG, TREND_IMAGE
 
 def mask_ip(ip: str) -> str:
     segments = ip.split(".")
@@ -41,6 +40,7 @@ def mask_ip(ip: str) -> str:
                 masked += ch
         masked_segments.append(masked)
     return ".".join(masked_segments)
+
 
 def save_result(download, upload, ping, timestamp):
     os.makedirs("results", exist_ok=True)
@@ -58,14 +58,17 @@ def save_result(download, upload, ping, timestamp):
     with open(RESULTS_LOG, "w") as f:
         json.dump(existing[-30:], f, indent=2)
 
+
 def generate_plot():
     if not os.path.exists(RESULTS_LOG):
         return None
     with open(RESULTS_LOG) as f:
         data = json.load(f)
+
     timestamps = [datetime.fromisoformat(d["timestamp"]) for d in data]
     downloads = [d["download"] for d in data]
     uploads = [d["upload"] for d in data]
+
     plt.figure(figsize=(10, 5))
     plt.plot(timestamps, downloads, label="Download (Mbps)", color="blue")
     plt.plot(timestamps, uploads, label="Upload (Mbps)", color="green")
@@ -76,6 +79,7 @@ def generate_plot():
     plt.grid()
     plt.tight_layout()
     plt.savefig(TREND_IMAGE)
+
     return TREND_IMAGE
 
 
