@@ -67,7 +67,8 @@ async def help_handler(message: Message):
             "/pingtest — 🚀 Ping Check (default or custom target)\n"
             "/exportlog — 🧾 speedtest log dump\n"
             "/monthlytrend — 📆 monthly graph\n"
-            "/bootcheck — 🚀 VPS Boot Check"
+            "/bootcheck — 🚀 VPS Boot Check\n"
+            "/syschart — 📊 Graphical telemetry panel(CPU USAGE, STORAGE..) with caption overlay"
         )
     )
 
