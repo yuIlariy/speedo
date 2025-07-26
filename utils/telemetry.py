@@ -1,7 +1,8 @@
 import psutil, socket, platform, matplotlib.pyplot as plt
 from io import BytesIO
 from datetime import datetime
-import subprocess, shutil
+import subprocess, shutil, json
+from config import RESULTS_LOG
 import random
 
 CAPTION_BANK = [
@@ -17,14 +18,35 @@ CAPTION_BANK = [
     "⚙️ Everything’s under control. Just how you built it.",
 ]
 
+def get_last_speedtest():
+    try:
+        with open(RESULTS_LOG) as f:
+            return json.load(f)[-1]
+    except Exception:
+        return {
+            'ping': 'N/A', 'download': 'N/A', 'upload': 'N/A',
+            'timestamp': 'Unavailable'
+        }
+
+def get_cpu_temp():
+    if shutil.which("sensors"):
+        try:
+            out = subprocess.run(["sensors"], capture_output=True, text=True)
+            for line in out.stdout.splitlines():
+                if "Package id 0" in line or "Tdie" in line:
+                    for part in line.split():
+                        if "°C" in part:
+                            return part
+        except:
+            pass
+    return "N/A"
+
 async def generate_syschart():
     cpu_usage = psutil.cpu_percent(interval=1)
     dark_mode = cpu_usage > 50
 
     plt.style.use('dark_background' if dark_mode else 'default')
     fig, axs = plt.subplots(2, 2, figsize=(10, 6))
-
-    # ✨ Inject a random caption as chart title
     fig.suptitle(random.choice(CAPTION_BANK), fontsize=14)
 
     hostname = socket.gethostname()
@@ -49,21 +71,21 @@ async def generate_syschart():
     axs[1,0].set_ylim(0, 100)
     axs[1,0].set_title(f"CPU Usage (%) • Temp: {get_cpu_temp()}")
 
-    # Speedtest + Net I/O
-    net = run_speedtest()
+    # Last Speedtest + Net I/O
+    net = get_last_speedtest()
     net_io = psutil.net_io_counters()
     net_text = (
-        f"Ping: {net['Ping']}\n"
-        f"Down: {net['Download']}\n"
-        f"Up: {net['Upload']}\n"
+        f"Ping: {net['ping']} ms\n"
+        f"Down: {net['download']} Mbps\n"
+        f"Up: {net['upload']} Mbps\n"
         f"TX: {round(net_io.bytes_sent/1e6, 1)} MB\n"
-        f"RX: {round(net_io.bytes_recv/1e6, 1)} MB"
+        f"RX: {round(net_io.bytes_recv/1e6, 1)} MB\n"
+        f"Last: {net['timestamp']}"
     )
-    axs[1,1].text(0.05, 0.6, net_text, fontsize=10)
+    axs[1,1].text(0.05, 0.5, net_text, fontsize=10)
     axs[1,1].axis('off')
-    axs[1,1].set_title("Network & Speedtest")
+    axs[1,1].set_title("Network & Last Speedtest")
 
-    # Footer
     fig.text(0.5, 0.01, f"{hostname} • Uptime: {uptime} • CPU: {cpu_model}", ha='center', fontsize=8)
 
     buf = BytesIO()
@@ -71,5 +93,4 @@ async def generate_syschart():
     plt.savefig(buf, format='png', dpi=150)
     buf.seek(0)
     return buf
-
 
