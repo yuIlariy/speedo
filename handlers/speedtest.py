@@ -1,7 +1,6 @@
-from aiogram import types
-from utils.speedtest import run_speedtest
+from aiogram import Router
+from aiogram.types import Message
+from aiogram.filters import Command
+from aiogram.filters.command import CommandObject
 
-async def handle_speedtest(message: types.Message):
-    await message.reply("Running speedtest... ⏳")
-    result = run_speedtest()
-    await message.reply(result)
+router = Router()
