@@ -13,10 +13,10 @@ from aiogram.types import Message, FSInputFile
 from aiogram.filters import Command
 from aiogram.client.default import DefaultBotProperties
 
-import speedtest  # ✅ external speedtest-cli library
+import speedtest  # ✅ external speedtest-cli
 from config import TOKEN, ADMIN_ID, THUMBNAIL_URL
 
-# Handler routers
+# ✅ Modular routers
 from handlers.diagnostics import router as diagnostics_router
 from handlers.speedtest import router as speedtest_router
 from handlers.admin import router as admin_router
@@ -27,12 +27,9 @@ bot = Bot(
     default=DefaultBotProperties(parse_mode=ParseMode.HTML)
 )
 dp = Dispatcher()
-
-# ✅ Attach routers exactly once
 dp.include_router(diagnostics_router)
 dp.include_router(speedtest_router)
 dp.include_router(admin_router)
-
 
 @dp.message(Command("start"))
 async def start_handler(message: Message):
@@ -72,7 +69,6 @@ async def help_handler(message: Message):
         )
     )
 
-
 # 🧠 System info helpers
 def get_sysinfo():
     def run(cmd): return subprocess.check_output(cmd, shell=True).decode().strip()
@@ -88,9 +84,8 @@ def get_sysinfo():
 def get_uptime():
     return subprocess.check_output("uptime -p", shell=True).decode().strip()
 
-
 # 🧪 Monitoring loop
-from speedo_core.monitor import auto_monitor  # ✅ renamed folder to avoid collision
+from speedo_core.monitor import auto_monitor  # ✅ avoid shadowing
 
 async def main():
     print("✅ Speedo deployed successfully, hedgehog 🤩.")
