@@ -13,14 +13,30 @@ def get_sysinfo() -> str:
     sys = platform.uname()
     mem = psutil.virtual_memory()
     disk = psutil.disk_usage("/")
+    boot = datetime.fromtimestamp(psutil.boot_time())
+    now = datetime.utcnow()
+    delta = now - boot
+
+    weeks, days = divmod(delta.days, 7)
+    hours, rem_secs = divmod(delta.seconds, 3600)
+    minutes = rem_secs // 60
+
+    formatted_uptime = []
+    if weeks: formatted_uptime.append(f"{weeks}w")
+    if days: formatted_uptime.append(f"{days}d")
+    if hours: formatted_uptime.append(f"{hours}h")
+    if minutes: formatted_uptime.append(f"{minutes}m")
+    uptime_str = " ".join(formatted_uptime)
 
     return (
-        f"<b>🧠 System</b>: {sys.system} {sys.release} ({sys.machine})\n"
-        f"<b>🕹️ Uptime</b>: {round(psutil.boot_time() / 3600, 1)} hrs\n"
+        f"<b>🖥️ System</b>: {sys.system} {sys.release} ({sys.machine})\n"
+        f"<b>🧮 CPU</b>: {sys.processor or 'Unknown'}\n"
+        f"<b>⏱️ Uptime</b>: {uptime_str}\n"
         f"<b>💾 Memory</b>: {mem.used // (1024 ** 2)}MB / {mem.total // (1024 ** 2)}MB\n"
         f"<b>📀 Disk</b>: {disk.used // (1024 ** 3)}GB / {disk.total // (1024 ** 3)}GB\n"
-        f"<b>⚙️ CPU</b>: {psutil.cpu_percent()}% used"
+        f"<b>⚙️ CPU Usage</b>: {psutil.cpu_percent()}%"
     )
+
 
 def get_uptime() -> str:
     boot_time = datetime.fromtimestamp(psutil.boot_time())
