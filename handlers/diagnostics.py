@@ -1,11 +1,15 @@
+import subprocess
+import psutil
+from datetime import datetime
+
 from aiogram import Router
 from aiogram.types import Message
 from aiogram.filters import Command
 from aiogram.filters.command import CommandObject
-import subprocess
 
 from config import ADMIN_ID
 from utils.ping_targets import get_ping_targets
+from utils.helpers import get_sysinfo
 
 router = Router()
 
@@ -46,29 +50,15 @@ async def pingtest_handler(message: Message, command: CommandObject):
     await message.answer("<b>🧪 Ping Test Results</b>\n\n" + "\n".join(results))
 
 
-
-from config import ADMIN_ID
-from utils.helpers import get_sysinfo
-
 @router.message(Command("sysinfo"))
 async def sysinfo_handler(message: Message):
     if message.from_user.id != ADMIN_ID:
         await message.answer("🚫 Admin only.")
         return
+
     info = get_sysinfo()
     await message.answer(f"<b>🚨 VPS System Info</b>\n\n{info}")
 
-
-
-from aiogram import Router
-from aiogram.types import Message
-from aiogram.filters import Command
-from datetime import datetime
-import psutil
-
-from config import ADMIN_ID
-
-router = Router()
 
 @router.message(Command("bootcheck"))
 async def bootcheck_handler(message: Message):
@@ -87,6 +77,5 @@ async def bootcheck_handler(message: Message):
     )
 
     await message.answer(reply)
-
 
 
