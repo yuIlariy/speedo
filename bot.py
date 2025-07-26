@@ -19,6 +19,11 @@ from handlers.diagnostics import router as diagnostics_router
 from handlers.speedtest import router as speedtest_router
 from handlers.admin import router as admin_router
 from handlers import speedtest
+from aiogram import Bot, Dispatcher
+from config import BOT_TOKEN
+
+bot = Bot(token=BOT_TOKEN, parse_mode="HTML")
+dp = Dispatcher()
 
 dp.include_router(speedtest.router)
 dp.include_router(diagnostics_router)
