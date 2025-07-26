@@ -364,7 +364,6 @@ async def pingtest_handler(message: Message, command: CommandObject):
         targets = {input_arg: input_arg}
         intro = f"📡 Target specified: <code>{input_arg}</code>. Pinging…"
     else:
-        targets = get_ping_targets(config)
         intro = "🏓 Launching packets toward default targets…"
 
     await message.answer(intro)
