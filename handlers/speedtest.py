@@ -6,6 +6,7 @@ from speedtest import Speedtest
 
 from config import ADMIN_ID, THUMBNAIL_URL
 from utils.helpers import get_uptime, mask_ip, save_result
+from utils.helpers import generate_plot
 
 router = Router()
 
