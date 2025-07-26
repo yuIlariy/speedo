@@ -1,5 +1,6 @@
 import os
 import json
+import subprocess
 import random
 import platform
 import psutil
@@ -28,14 +29,24 @@ def get_sysinfo() -> str:
     if minutes: formatted_uptime.append(f"{minutes}m")
     uptime_str = " ".join(formatted_uptime)
 
+    # ✅ Grab CPU name via shell for clarity
+    try:
+        cpu_name = subprocess.check_output(
+            "lscpu | grep 'Model name' | awk -F: '{print $2}'",
+            shell=True
+        ).decode().strip()
+    except Exception:
+        cpu_name = sys.processor or "Unknown"
+
     return (
         f"<b>🖥️ System</b>: {sys.system} {sys.release} ({sys.machine})\n"
-        f"<b>🧮 CPU</b>: {sys.processor or 'Unknown'}\n"
+        f"<b>🧮 CPU</b>: {cpu_name}\n"
         f"<b>⏱️ Uptime</b>: {uptime_str}\n"
-        f"<b>💾 Memory</b>: {mem.used // (1024 ** 2)}MB / {mem.total // (1024 ** 2)}MB\n"
+        f"<b>💾 Memory</b>: {mem.used // (1024 ** 3)}GB / {mem.total // (1024 ** 3)}GB\n"
         f"<b>📀 Disk</b>: {disk.used // (1024 ** 3)}GB / {disk.total // (1024 ** 3)}GB\n"
         f"<b>⚙️ CPU Usage</b>: {psutil.cpu_percent()}%"
     )
+
 
 
 def get_uptime() -> str:
