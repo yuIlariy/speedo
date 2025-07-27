@@ -23,5 +23,6 @@ async def handle_loadrings(msg: Message):
         flair = random.choice(CAPTIONS)
         await msg.answer_photo(photo=image, caption=flair)
     except Exception as e:
-        await msg.answer(f"⚠️ Error generating /loadrings: {type(e).__name__}\n{str(e)}")
+        error_text = f"⚠️ Failed to render /loadrings.\nError: {type(e).__name__}: {str(e)}"
+        await msg.answer(error_text, parse_mode=None)
 
