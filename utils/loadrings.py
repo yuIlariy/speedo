@@ -108,6 +108,6 @@ def render_rings_random():
     metrics = get_sys_metrics()
     theme = random.choice(list(THEMES.keys()))
     caption = CAPTION_MOODS.get(theme, "")
-    return render_rings(theme=theme, metrics=metrics, caption_override=caption)
-
+    image_buf = render_rings(theme=theme, metrics=metrics, caption_override=caption)
+    return image_buf, caption
 
