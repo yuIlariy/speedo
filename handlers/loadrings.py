@@ -1,5 +1,5 @@
 from aiogram import Router
-from aiogram.types import Message, InputFile
+from aiogram.types import Message, BufferedInputFile
 from aiogram.filters import Command
 from utils.loadrings import render_rings_random
 import random
@@ -23,7 +23,7 @@ async def handle_loadrings(msg: Message):
         flair = random.choice(CAPTIONS)
         final_caption = f"{flair}\n🎨 Theme: {theme_caption}"
 
-        image = InputFile(img_buf)
+        image = BufferedInputFile(img_buf, filename="loadrings.png")
         await msg.answer_photo(photo=image, caption=final_caption)
     except Exception as e:
         error_text = f"⚠️ Failed to render /loadrings.\nError: {type(e).__name__}: {str(e)}"
