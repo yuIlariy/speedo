@@ -97,7 +97,7 @@ async def main():
     print("✅ Speedo deployed successfully, hedgehog 🦔.")
     await asyncio.sleep(15)
     asyncio.create_task(auto_monitor(bot))
-    await bot.delete_webhook(drop_pending_updates=True)
+    await bot.delete_webhook(drop_pending_updates=True, request_timeout=30)
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
