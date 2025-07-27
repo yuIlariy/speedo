@@ -55,7 +55,7 @@ Built on `aiogram` and optimized for deployment clarity, emoji-rich feedback, an
 
 ## 📦 Installation
 
- - `There mayhap a 15sec cool down after deploy to enable auto monitor without error (bot will boot after 15sec)(maybe cos hedgehog 🦔 is 👑)`
+ - `There mayhap a 15sec cool down after deploy to enable auto monitor without error (bot will boot after 15sec)(maybe cos 🦔 is 👑)`
 
 ### 1. Clone the Repo
 
