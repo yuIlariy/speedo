@@ -26,22 +26,25 @@ CAPTION_MOODS = {
 
 # ─── Gather System Metrics ───────────────────────────
 def get_sys_metrics():
-    mem = psutil.virtual_memory()
-    disk = psutil.disk_usage("/")
-    net = psutil.net_io_counters()
-    cpu = psutil.cpu_percent()
-    load = psutil.getloadavg()
+    try:
+        mem = psutil.virtual_memory()
+        disk = psutil.disk_usage("/")
+        net = psutil.net_io_counters()
+        cpu = psutil.cpu_percent()
+        load = psutil.getloadavg()
+    except Exception:
+        mem = disk = net = cpu = load = None
 
     return {
-        "cpu": cpu,
-        "ram": (mem.used / mem.total) * 100,
-        "ram_text": f"{mem.used/1e9:.1f}/{mem.total/1e9:.1f} GB",
-        "disk": disk.percent,
-        "net_tx": f"{net.bytes_sent / 1e6:.1f}MB",
-        "net_rx": f"{net.bytes_recv / 1e6:.1f}MB",
-        "load": load,
+        "cpu": cpu or 0,
+        "ram": (mem.used / mem.total * 100) if mem else 0,
+        "ram_text": f"{mem.used/1e9:.1f}/{mem.total/1e9:.1f} GB" if mem else "?.?",
+        "disk": disk.percent if disk else 0,
+        "net_tx": f"{net.bytes_sent / 1e6:.1f}MB" if net else "?MB",
+        "net_rx": f"{net.bytes_recv / 1e6:.1f}MB" if net else "?MB",
+        "load": load if load else [0, 0, 0],
         "hostname": socket.gethostname(),
-        "uptime": int(time.time() - psutil.boot_time())
+        "uptime": int(time.time() - psutil.boot_time()) if psutil.boot_time else 0
     }
 
 # ─── Ring Style Helpers ──────────────────────────────
@@ -68,21 +71,29 @@ def render_rings(theme="dark", metrics=None, caption_override=None):
 
     # ─ Rings ─
     ring_specs = [
-        ("cpu", (0.5,1.5), f"🧮 CPU {metrics['cpu']}%", metrics["cpu"] > ALERT["cpu"]),
-        ("ram", (1.5,1.5), f"💾 RAM {metrics['ram']:.1f}%\n{metrics['ram_text']}", metrics["ram"] > ALERT["ram"]),
-        ("disk", (0.5,0.5), f"📀 Disk {metrics['disk']}%", metrics["disk"] > ALERT["disk"]),
-        ("net", (1.5,0.5), f"🌐 TX {metrics['net_tx']}\nRX {metrics['net_rx']}", False),
-        ("load", (1,1), f"💡 Load {metrics['load'][0]:.1f}/{metrics['load'][1]:.1f}", metrics["load"][0] > ALERT["loadavg"]),
+        ("cpu", (0.5,1.5), f"🧮 CPU {metrics.get('cpu', 0)}%", metrics.get("cpu", 0) > ALERT["cpu"]),
+        ("ram", (1.5,1.5), f"💾 RAM {metrics.get('ram', 0):.1f}%\n{metrics.get('ram_text', '?')}", metrics.get("ram", 0) > ALERT["ram"]),
+        ("disk", (0.5,0.5), f"📀 Disk {metrics.get('disk', 0)}%", metrics.get("disk", 0) > ALERT["disk"]),
+        ("net_io", (1.5,0.5), f"🌐 TX {metrics.get('net_tx', '?')}\nRX {metrics.get('net_rx', '?')}", False),
+        ("load", (1,1), f"💡 Load {metrics.get('load',[0])[0]:.1f}/{metrics.get('load',[0,0])[1]:.1f}", metrics.get("load",[0])[0] > ALERT["loadavg"]),
     ]
 
     for key, center, label, alert in ring_specs:
-        val = metrics[key] if key != "load" else sum(metrics["load"]) / 3 * 25
+        if key == "load":
+            try:
+                val = sum(metrics.get("load", [0,0,0])) / 3 * 25
+            except:
+                val = 0
+        elif key == "net_io":
+            val = 100  # aesthetic default
+        else:
+            val = metrics.get(key, 0)
         draw_ring(ax, center, val, label, alert, fg=style["fg"])
 
     # ─ Footer ─
-    mood = "chill 🧃" if metrics["cpu"] < 50 else "watching 🔥"
+    mood = "chill 🧃" if metrics.get("cpu", 0) < 50 else "watching 🔥"
     caption = caption_override or CAPTION_MOODS.get(theme, "")
-    footer = f"{caption} • {metrics['hostname']} • up {metrics['uptime']//3600}h • {datetime.now().strftime('%H:%M')} • mood: {mood}"
+    footer = f"{caption} • {metrics.get('hostname', '?')} • up {metrics.get('uptime', 0)//3600}h • {datetime.now().strftime('%H:%M')} • mood: {mood}"
     ax.text(1, -0.1, footer, ha="center", va="bottom", fontsize=8, color=style["fg"])
 
     # ─ Output ─
@@ -92,7 +103,7 @@ def render_rings(theme="dark", metrics=None, caption_override=None):
     buf.seek(0)
     return buf
 
-# ─── Randomized Entry Point ──────────────────────────
+# ─── Random Theme Entry Point ────────────────────────
 def render_rings_random():
     metrics = get_sys_metrics()
     theme = random.choice(list(THEMES.keys()))
