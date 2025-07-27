@@ -4,6 +4,9 @@ import psutil
 import os
 import subprocess
 from datetime import datetime
+import matplotlib
+import matplotlib.font_manager as fm
+from matplotlib import rcParams
 import matplotlib.pyplot as plt
 
 from aiogram import Bot, Dispatcher
@@ -12,8 +15,6 @@ from aiogram.enums import ParseMode
 from aiogram.types import Message, FSInputFile
 from aiogram.filters import Command
 from aiogram.client.default import DefaultBotProperties
-import matplotlib.font_manager as fm
-from matplotlib import rcParams
 
 import speedtest  # ✅ external speedtest-cli
 from config import TOKEN, ADMIN_ID, THUMBNAIL_URL
