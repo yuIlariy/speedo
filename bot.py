@@ -39,16 +39,16 @@ dp.include_router(syschart_router)
 dp.include_router(loadrings_router)
 
 
-# 📁 Try to load Noto Color Emoji for full glyph support
-noto_path = "/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf"
-if os.path.exists(noto_path):
-    fm.fontManager.addfont(noto_path)
-    rcParams['font.family'] = ['DejaVu Sans', 'Noto Color Emoji']
-else:
-    print("⚠️ Warning: Noto Color Emoji not found. Glyphs may be missing.")
+# 📁 Set font family with emoji fallback — no manual loading
+rcParams['font.family'] = ['DejaVu Sans', 'Noto Color Emoji']
 
-# 🖼️ Optional backend selection (Agg for headless image gen)
+# 🖼️ Use Agg backend for headless image generation
 matplotlib.use("Agg")
+
+# 🪧 Optional console message for visibility
+noto_path = "/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf"
+if not os.path.exists(noto_path):
+    print("⚠️ Noto Color Emoji not found. Glyphs may be missing.")
 
 
 @dp.message(Command("start"))
