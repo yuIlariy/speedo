@@ -32,6 +32,8 @@ Built on `aiogram` and optimized for deployment clarity, emoji-rich feedback, an
   
 - `/bootcheck` — VPS boot time & uptime snapshot (admin only)
 
+-  `/loadrings` — VPS rings  💍
+
 - `/syschart` — Graphical system telemetry panel:
   - RAM & Disk usage bars
   - CPU load + temperature
@@ -143,6 +145,7 @@ screen -S speedo -X quit
 | `/sysinfo`        | VPS system snapshot                             |
 | `/bootcheck`      | VPS boot time & uptime                           |
 | `/syschart`      | Graphical telemetry panel with caption overlay |
+| `/loadrings`      | Graphical rings panel with caption overlay(LOTR)|
 
 ---
 
