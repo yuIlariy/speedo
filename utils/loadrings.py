@@ -1,7 +1,7 @@
 from io import BytesIO
 import matplotlib.pyplot as plt
 from matplotlib.patches import Wedge
-import psutil, socket, time
+import psutil, socket, time, random
 from datetime import datetime
 
 # ─── Configurable Thresholds ─────────────────────────
@@ -13,9 +13,15 @@ ALERT = {
 }
 
 THEMES = {
-    "dark":  {"bg": "#0e0e1c", "fg": "#ffffff"},
-    "neon":  {"bg": "#000000", "fg": "#00ffff"},
+    "dark":    {"bg": "#0e0e1c", "fg": "#ffffff"},
+    "neon":    {"bg": "#000000", "fg": "#00ffff"},
     "minimal": {"bg": "#ffffff", "fg": "#333333"}
+}
+
+CAPTION_MOODS = {
+    "dark":    "Dark ops 🕶️",
+    "neon":    "Laser lanes 💡",
+    "minimal": "Clean glide 🧼"
 }
 
 # ─── Gather System Metrics ───────────────────────────
@@ -25,7 +31,7 @@ def get_sys_metrics():
     net = psutil.net_io_counters()
     cpu = psutil.cpu_percent()
     load = psutil.getloadavg()
-    
+
     return {
         "cpu": cpu,
         "ram": (mem.used / mem.total) * 100,
@@ -48,7 +54,7 @@ def draw_ring(ax, center, percent, label, alert=False, fg="#00bfff"):
             color="red" if alert else fg)
 
 # ─── Render Image ────────────────────────────────────
-def render_rings(theme="dark", metrics=None):
+def render_rings(theme="dark", metrics=None, caption_override=None):
     if not metrics:
         metrics = get_sys_metrics()
 
@@ -75,7 +81,8 @@ def render_rings(theme="dark", metrics=None):
 
     # ─ Footer ─
     mood = "chill 🧃" if metrics["cpu"] < 50 else "watching 🔥"
-    footer = f"{metrics['hostname']} • up {metrics['uptime']//3600}h • {datetime.now().strftime('%H:%M')} • mood: {mood}"
+    caption = caption_override or CAPTION_MOODS.get(theme, "")
+    footer = f"{caption} • {metrics['hostname']} • up {metrics['uptime']//3600}h • {datetime.now().strftime('%H:%M')} • mood: {mood}"
     ax.text(1, -0.1, footer, ha="center", va="bottom", fontsize=8, color=style["fg"])
 
     # ─ Output ─
@@ -84,5 +91,12 @@ def render_rings(theme="dark", metrics=None):
     plt.close(fig)
     buf.seek(0)
     return buf
+
+# ─── Randomized Entry Point ──────────────────────────
+def render_rings_random():
+    metrics = get_sys_metrics()
+    theme = random.choice(list(THEMES.keys()))
+    caption = CAPTION_MOODS.get(theme, "")
+    return render_rings(theme=theme, metrics=metrics, caption_override=caption)
 
 
