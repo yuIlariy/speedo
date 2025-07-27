@@ -23,7 +23,9 @@ async def handle_loadrings(msg: Message):
         flair = random.choice(CAPTIONS)
         final_caption = f"{flair}\n🎨 Theme: {theme_caption}"
 
-        image = BufferedInputFile(img_buf, filename="loadrings.png")
+        # ✅ FIXED: use getvalue() to extract raw bytes from BytesIO
+        image = BufferedInputFile(img_buf.getvalue(), filename="loadrings.png")
+
         await msg.answer_photo(photo=image, caption=final_caption)
     except Exception as e:
         error_text = f"⚠️ Failed to render /loadrings.\nError: {type(e).__name__}: {str(e)}"
