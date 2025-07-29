@@ -2,6 +2,7 @@ from aiogram import Router
 from aiogram.types import Message
 from aiogram.filters import Command
 from utils.anomaly import toggle_anomaly
+from utils.anomaly import manual_report
 
 router = Router()
 
@@ -24,3 +25,8 @@ async def cmd_anomalywatch(msg: Message):
         await msg.answer("🧭 Usage:\n/anomalywatch on 80 → start with threshold\n/anomalywatch off → stop monitor")
 
 
+
+
+@router.message(Command("anomalyreport"))
+async def cmd_anomalyreport(msg: Message):
+    await manual_report(msg.bot)
