@@ -96,3 +96,27 @@ async def manual_report(bot: Bot):
     except:
         pass
 
+
+def get_status_report() -> str:
+    global ANOMALY_ACTIVE, THRESHOLD_LEVEL, LAST_ALERT, SPIKE_LOG
+
+    status = "🧭 <b>Anomaly Status</b>\n"
+    status += f"🔌 <b>Monitor:</b> {'Active ✅' if ANOMALY_ACTIVE else 'Inactive ❌'}\n"
+    status += f"🎚️ <b>Threshold:</b> {THRESHOLD_LEVEL}%\n"
+
+    if LAST_ALERT:
+        status += "📊 <b>Last Alerts:</b>\n"
+        for k, v in LAST_ALERT.items():
+            status += f"• {k.upper()}: {v:.1f}%\n"
+    else:
+        status += "📊 <b>Last Alerts:</b> None"
+
+    if SPIKE_LOG:
+        total = sum(len(v) for v in SPIKE_LOG.values())
+        status += f"\n📈 <b>Tracked Spikes:</b> {total} event(s)"
+    else:
+        status += "\n📈 <b>Tracked Spikes:</b> None"
+
+    return status
+
+
