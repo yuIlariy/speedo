@@ -1,7 +1,7 @@
 import asyncio
 from config import ADMIN_ID
-from utils.sysmetrics import get_sys_metrics
 from aiogram import Bot
+import psutil
 
 THRESHOLDS = {
     "cpu": 10,
@@ -14,6 +14,15 @@ ANOMALY_TASK = None
 ANOMALY_ACTIVE = False
 LAST_ALERT = {}
 
+# 🧠 Metric Collector (Fallback Logic)
+def get_sys_metrics():
+    return {
+        "cpu": psutil.cpu_percent(interval=None),
+        "ram": psutil.virtual_memory().percent,
+        "disk": psutil.disk_usage("/").percent,
+        "load": psutil.getloadavg()  # Tuple (1m, 5m, 15m)
+    }
+
 async def run_anomaly_watch(bot: Bot):
     global LAST_ALERT, ANOMALY_ACTIVE
     ANOMALY_ACTIVE = True
@@ -24,8 +33,7 @@ async def run_anomaly_watch(bot: Bot):
         for key, threshold in THRESHOLDS.items():
             val = metrics.get(key, 0)
             if key == "loadavg":
-                val = metrics["load"][0] * 25  # Normalize
-
+                val = metrics["load"][0] * 25  # Normalize for %
             if val >= threshold and LAST_ALERT.get(key) != val:
                 LAST_ALERT[key] = val
                 alert = (
@@ -36,13 +44,12 @@ async def run_anomaly_watch(bot: Bot):
                 try:
                     await bot.send_message(ADMIN_ID, alert, parse_mode="HTML")
                 except:
-                    pass  # Ignore transient failure
+                    pass
 
         await asyncio.sleep(10)
 
 async def toggle_anomaly(bot: Bot, state: bool):
     global ANOMALY_TASK, ANOMALY_ACTIVE
-
     if state and not ANOMALY_ACTIVE:
         ANOMALY_TASK = asyncio.create_task(run_anomaly_watch(bot))
     elif not state and ANOMALY_ACTIVE:
@@ -52,4 +59,3 @@ async def toggle_anomaly(bot: Bot, state: bool):
             ANOMALY_TASK = None
 
 
-  
