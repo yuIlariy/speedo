@@ -42,11 +42,11 @@ async def cmd_anomalystatus(msg: Message):
 
 
 
-def register_reset_handler(dp: Dispatcher, bot: Bot):
-    @dp.message_handler(commands=["resetanomaly"])
-    async def handle_reset(message: types.Message):
-        reset_anomaly_state()
-        await bot.send_message(
-            message.chat.id,
-            "🧹 <b>Anomaly system reset</b>\nAll spike logs and alert history wiped."
-        )
+@router.message(Command("resetanomaly"))
+async def cmd_resetanomaly(msg: Message):
+    if msg.from_user.id != ADMIN_ID:
+        return
+    reset_anomaly_state()
+    await msg.answer(
+        "🧹 <b>Anomaly system reset</b>\nAll spike logs and alert history wiped."
+    )
