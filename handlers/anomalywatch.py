@@ -3,6 +3,7 @@ from aiogram.types import Message
 from aiogram.filters import Command
 from utils.anomaly import toggle_anomaly
 from utils.anomaly import manual_report
+from utils.anomaly import get_status_report
 
 router = Router()
 
@@ -30,3 +31,12 @@ async def cmd_anomalywatch(msg: Message):
 @router.message(Command("anomalyreport"))
 async def cmd_anomalyreport(msg: Message):
     await manual_report(msg.bot)
+
+
+
+@router.message(Command("anomalystatus"))
+async def cmd_anomalystatus(msg: Message):
+    status = get_status_report()
+    await msg.answer(status)
+
+
