@@ -80,3 +80,19 @@ async def toggle_anomaly(bot: Bot, state: bool, threshold: int = 90):
         REPORT_TASK = None
 
 
+async def manual_report(bot: Bot):
+    global SPIKE_LOG
+    if not SPIKE_LOG:
+        caption = "📊 <b>Manual Anomaly Report</b>\nNo recent anomalies tracked."
+    else:
+        parts = [f"📊 <b>Manual Anomaly Report</b>"]
+        for k, v in SPIKE_LOG.items():
+            spikes = ", ".join(f"{val:.1f}%@{t}" for val, t in v)
+            parts.append(f"• <b>{k.upper()}:</b> {len(v)}× → {spikes}")
+        caption = "\n".join(parts)
+
+    try:
+        await bot.send_message(ADMIN_ID, caption, parse_mode="HTML")
+    except:
+        pass
+
