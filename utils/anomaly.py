@@ -4,10 +4,10 @@ from aiogram import Bot
 import psutil
 
 THRESHOLDS = {
-    "cpu": 10,
-    "ram": 10,
-    "disk": 10,
-    "loadavg": 10
+    "cpu": 90,
+    "ram": 90,
+    "disk": 80,
+    "loadavg": 80
 }
 
 ANOMALY_TASK = None
