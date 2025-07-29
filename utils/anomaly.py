@@ -4,10 +4,10 @@ from utils.sysmetrics import get_sys_metrics
 from aiogram import Bot
 
 THRESHOLDS = {
-    "cpu": 90,
-    "ram": 90,
-    "disk": 90,
-    "loadavg": 90
+    "cpu": 10,
+    "ram": 10,
+    "disk": 10,
+    "loadavg": 10
 }
 
 ANOMALY_TASK = None
