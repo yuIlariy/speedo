@@ -21,7 +21,6 @@ METRICS = {
 async def run_anomaly_watch(bot: Bot):
     global LAST_ALERT, ANOMALY_ACTIVE, SPIKE_LOG
     ANOMALY_ACTIVE = True
-    SPIKE_LOG = {}
 
     while ANOMALY_ACTIVE:
         for key, getter in METRICS.items():
@@ -68,6 +67,7 @@ async def toggle_anomaly(bot: Bot, state: bool, threshold: int = 90):
     THRESHOLD_LEVEL = threshold
 
     if state and not ANOMALY_ACTIVE:
+        ANOMALY_ACTIVE = True
         ANOMALY_TASK = asyncio.create_task(run_anomaly_watch(bot))
         REPORT_TASK = asyncio.create_task(auto_report(bot))
     elif not state and ANOMALY_ACTIVE:
@@ -78,7 +78,6 @@ async def toggle_anomaly(bot: Bot, state: bool, threshold: int = 90):
             REPORT_TASK.cancel()
         ANOMALY_TASK = None
         REPORT_TASK = None
-
 
 async def manual_report(bot: Bot):
     global SPIKE_LOG
@@ -95,7 +94,6 @@ async def manual_report(bot: Bot):
         await bot.send_message(ADMIN_ID, caption, parse_mode="HTML")
     except:
         pass
-
 
 def get_status_report() -> str:
     global ANOMALY_ACTIVE, THRESHOLD_LEVEL, LAST_ALERT, SPIKE_LOG
@@ -119,4 +117,15 @@ def get_status_report() -> str:
 
     return status
 
+def reset_anomaly_state():
+    global ANOMALY_ACTIVE, LAST_ALERT, SPIKE_LOG, ANOMALY_TASK, REPORT_TASK
+    ANOMALY_ACTIVE = False
+    LAST_ALERT.clear()
+    SPIKE_LOG.clear()
+    if ANOMALY_TASK:
+        ANOMALY_TASK.cancel()
+        ANOMALY_TASK = None
+    if REPORT_TASK:
+        REPORT_TASK.cancel()
+        REPORT_TASK = None
 
