@@ -23,6 +23,7 @@ Built on `aiogram` and optimized for deployment clarity, emoji-rich feedback, an
 - `/healthscore` — Emoji-based VPS performance rating (ping, bandwidth)
 - `/anomalywatch` — 👻Auto watches your system with set threshold percentage & sends alerts ☄️
 - `anomalyreport` — ☄️ Manually pull anomalyreport logs
+- `/anomalystatus` — 👻 Anomalywatch status 
 - `/pingtest` — ICMP ping test to 8.8.8.8, 1.1.1.1 ... if target address not specified (packet loss, latency stats)
 - `/exportlog` — Sends the full `speedlog.json` file as a document
 - `/sysinfo` — Current VPS system info:
@@ -150,6 +151,7 @@ screen -S speedo -X quit
 | `/loadrings`      | Graphical rings panel with caption overlay(LOTR)|
 | `/anomalywatch`      | Auto watch your system against set threshold points & sends alerts 👻 |
 | `/anomalyreport`      | Manually pull anomalyreport 👻 |
+| `/anomalystatus`      | Know your anomalywatch status 👻 |
 
 ---
 
