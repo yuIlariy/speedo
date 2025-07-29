@@ -21,6 +21,7 @@ Built on `aiogram` and optimized for deployment clarity, emoji-rich feedback, an
 - `/monthlytrend` — Graph showing only results from the current month
 - `/lastspeed` — Displays the latest speedtest snapshot in text format
 - `/healthscore` — Emoji-based VPS performance rating (ping, bandwidth)
+- `/anomalywatch` — 👻Auto watches your system with set threshold percentage & sends alerts ☄️
 - `/pingtest` — ICMP ping test to 8.8.8.8, 1.1.1.1 ... if target address not specified (packet loss, latency stats)
 - `/exportlog` — Sends the full `speedlog.json` file as a document
 - `/sysinfo` — Current VPS system info:
@@ -146,6 +147,7 @@ screen -S speedo -X quit
 | `/bootcheck`      | VPS boot time & uptime                           |
 | `/syschart`      | Graphical telemetry panel with caption overlay |
 | `/loadrings`      | Graphical rings panel with caption overlay(LOTR)|
+| `/anomalywatch`      | Auto watch your system against set threshold points & sends alerts 👻 |
 
 ---
 
