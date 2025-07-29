@@ -1,25 +1,54 @@
 import asyncio
+import os, json
+import psutil
 from config import ADMIN_ID
 from aiogram import Bot
-import psutil
 from datetime import datetime
+
+# State persistence
+STATE_PATH = "speedo_storage/anomaly_state.json"
 
 ANOMALY_TASK = None
 REPORT_TASK = None
 ANOMALY_ACTIVE = False
+THRESHOLD_LEVEL = 90
 LAST_ALERT = {}
 SPIKE_LOG = {}
-THRESHOLD_LEVEL = 90  # default
 
 METRICS = {
     "cpu": lambda: psutil.cpu_percent(interval=None),
     "ram": lambda: psutil.virtual_memory().percent,
     "disk": lambda: psutil.disk_usage("/").percent,
-    "loadavg": lambda: psutil.getloadavg()[0] * 25  # normalize
+    "loadavg": lambda: psutil.getloadavg()[0] * 25  # Normalize
 }
 
+def load_state():
+    global ANOMALY_ACTIVE, THRESHOLD_LEVEL, SPIKE_LOG
+    if os.path.exists(STATE_PATH):
+        try:
+            with open(STATE_PATH) as f:
+                data = json.load(f)
+            ANOMALY_ACTIVE = data.get("active", False)
+            THRESHOLD_LEVEL = data.get("threshold", 90)
+            SPIKE_LOG = data.get("spikes", {})
+        except Exception:
+            pass
+
+def save_state():
+    data = {
+        "active": ANOMALY_ACTIVE,
+        "threshold": THRESHOLD_LEVEL,
+        "spikes": SPIKE_LOG
+    }
+    os.makedirs(os.path.dirname(STATE_PATH), exist_ok=True)
+    try:
+        with open(STATE_PATH, "w") as f:
+            json.dump(data, f)
+    except:
+        pass
+
 async def run_anomaly_watch(bot: Bot):
-    global LAST_ALERT, ANOMALY_ACTIVE, SPIKE_LOG
+    global LAST_ALERT, SPIKE_LOG, ANOMALY_ACTIVE
     ANOMALY_ACTIVE = True
 
     while ANOMALY_ACTIVE:
@@ -39,28 +68,27 @@ async def run_anomaly_watch(bot: Bot):
                     await bot.send_message(ADMIN_ID, alert, parse_mode="HTML")
                 except:
                     pass
+                save_state()
         await asyncio.sleep(10)
 
 async def auto_report(bot: Bot):
     global SPIKE_LOG
     while ANOMALY_ACTIVE:
         await asyncio.sleep(43200)  # 12h
-
         if not SPIKE_LOG:
             caption = "✅ <b>Anomaly Summary</b>\nNo spikes detected in the last 12 hours."
         else:
-            parts = [f"📈 <b>{k.upper()}:</b> {len(v)}× spikes"]
+            parts = []
             for k, v in SPIKE_LOG.items():
                 spikes = ", ".join(f"{val:.1f}%@{t}" for val, t in v)
-                parts.append(f"• {k}: {spikes}")
+                parts.append(f"• {k.upper()}: {len(v)}× → {spikes}")
             caption = "<b>📊 12h Anomaly Summary</b>\n" + "\n".join(parts)
-
         try:
             await bot.send_message(ADMIN_ID, caption, parse_mode="HTML")
         except:
             pass
-
         SPIKE_LOG = {}
+        save_state()
 
 async def toggle_anomaly(bot: Bot, state: bool, threshold: int = 90):
     global ANOMALY_TASK, REPORT_TASK, ANOMALY_ACTIVE, THRESHOLD_LEVEL
@@ -78,6 +106,7 @@ async def toggle_anomaly(bot: Bot, state: bool, threshold: int = 90):
             REPORT_TASK.cancel()
         ANOMALY_TASK = None
         REPORT_TASK = None
+    save_state()
 
 async def manual_report(bot: Bot):
     global SPIKE_LOG
@@ -97,7 +126,6 @@ async def manual_report(bot: Bot):
 
 def get_status_report() -> str:
     global ANOMALY_ACTIVE, THRESHOLD_LEVEL, LAST_ALERT, SPIKE_LOG
-
     status = "🧭 <b>Anomaly Status</b>\n"
     status += f"🔌 <b>Monitor:</b> {'Active ✅' if ANOMALY_ACTIVE else 'Inactive ❌'}\n"
     status += f"🎚️ <b>Threshold:</b> {THRESHOLD_LEVEL}%\n"
@@ -114,7 +142,6 @@ def get_status_report() -> str:
         status += f"\n📈 <b>Tracked Spikes:</b> {total} event(s)"
     else:
         status += "\n📈 <b>Tracked Spikes:</b> None"
-
     return status
 
 def reset_anomaly_state():
@@ -128,4 +155,5 @@ def reset_anomaly_state():
     if REPORT_TASK:
         REPORT_TASK.cancel()
         REPORT_TASK = None
+    save_state()
 
