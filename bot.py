@@ -74,6 +74,7 @@ async def help_handler(message: Message):
             "/bootcheck — 🚀 VPS Boot Check\n"
             "/anomalywatch on | off — 👻 Toggle system alert when thresholds breached\n"
             "/anomalyreport — ☄️ Manually get anomaly report logs\n"
+            "/anomalystatus — 👻 Anomalywatch status\n"
             "/syschart — 📊 Graphical telemetry panel(CPU USAGE, STORAGE..) with caption overlay\n"
             "/loadrings — 💍 Lord of the rings fidelity"
         )
