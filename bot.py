@@ -75,6 +75,7 @@ async def help_handler(message: Message):
             "/anomalywatch on | off — 👻 Toggle system alert when thresholds breached\n"
             "/anomalyreport — ☄️ Manually get anomaly report logs\n"
             "/anomalystatus — 👻 Anomalywatch status\n"
+            "/resetanomaly — ☄️ Reset Anomaly\n"
             "/syschart — 📊 Graphical telemetry panel(CPU USAGE, STORAGE..) with caption overlay\n"
             "/loadrings — 💍 Lord of the rings fidelity"
         )
