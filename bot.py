@@ -72,6 +72,7 @@ async def help_handler(message: Message):
             "/exportlog — 🧾 speedtest log dump\n"
             "/monthlytrend — 📆 monthly graph\n"
             "/bootcheck — 🚀 VPS Boot Check\n"
+            "/anomalywatch on | off — 👻 Toggle system alert when thresholds breached\n"
             "/syschart — 📊 Graphical telemetry panel(CPU USAGE, STORAGE..) with caption overlay\n"
             "/loadrings — 💍 Lord of the rings fidelity"
         )
