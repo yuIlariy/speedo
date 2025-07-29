@@ -21,7 +21,8 @@ from handlers.diagnostics import router as diagnostics_router
 from handlers.speedtest import router as speedtest_router
 from handlers.admin import router as admin_router
 from handlers.syschart import router as syschart_router
-from handlers.loadrings import router as loadrings_router  
+from handlers.loadrings import router as loadrings_router
+from handlers.anomalywatch import router as anomaly_router
 
 # 💡 Dispatcher setup
 bot = Bot(
@@ -34,6 +35,7 @@ dp.include_router(speedtest_router)
 dp.include_router(admin_router)
 dp.include_router(syschart_router)
 dp.include_router(loadrings_router)
+dp.include_router(anomaly_router)
 
 @dp.message(Command("start"))
 async def start_handler(message: Message):
