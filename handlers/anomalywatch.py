@@ -4,6 +4,7 @@ from aiogram.filters import Command
 from utils.anomaly import toggle_anomaly
 from utils.anomaly import manual_report
 from utils.anomaly import get_status_report
+from utils.anomaly import reset_anomaly_state
 
 router = Router()
 
@@ -40,3 +41,12 @@ async def cmd_anomalystatus(msg: Message):
     await msg.answer(status)
 
 
+
+def register_reset_handler(dp: Dispatcher, bot: Bot):
+    @dp.message_handler(commands=["resetanomaly"])
+    async def handle_reset(message: types.Message):
+        reset_anomaly_state()
+        await bot.send_message(
+            message.chat.id,
+            "🧹 <b>Anomaly system reset</b>\nAll spike logs and alert history wiped."
+        )
