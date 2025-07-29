@@ -39,11 +39,6 @@ dp.include_router(syschart_router)
 dp.include_router(loadrings_router)
 dp.include_router(anomaly_router)
 
-# Load anomaly flags and logs from disk
-load_state()
-# If watcher was active before restart, resume monitor
-if ANOMALY_ACTIVE:
-    asyncio.create_task(toggle_anomaly(bot, state=True, threshold=THRESHOLD_LEVEL))
 
 @dp.message(Command("start"))
 async def start_handler(message: Message):
@@ -110,6 +105,13 @@ from speedo_core.monitor import auto_monitor  # ✅ avoid shadowing
 async def main():
     print("✅ Speedo deployed successfully, hedgehog 🦔.")
     await asyncio.sleep(15)
+   
+    # Load anomaly flags and logs from disk
+    load_state()
+    # If watcher was active before restart, resume monitor
+    if ANOMALY_ACTIVE:
+        asyncio.create_task(toggle_anomaly(bot, state=True, threshold=THRESHOLD_LEVEL))
+    
     asyncio.create_task(auto_monitor(bot))
     await dp.start_polling(bot)
 
