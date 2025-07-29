@@ -13,6 +13,8 @@ from aiogram.types import Message, FSInputFile
 from aiogram.filters import Command
 from aiogram.client.default import DefaultBotProperties
 
+from utils.anomaly import load_state, toggle_anomaly, ANOMALY_ACTIVE, THRESHOLD_LEVEL
+
 import speedtest  # ✅ external speedtest-cli
 from config import TOKEN, ADMIN_ID, THUMBNAIL_URL
 
@@ -36,6 +38,12 @@ dp.include_router(admin_router)
 dp.include_router(syschart_router)
 dp.include_router(loadrings_router)
 dp.include_router(anomaly_router)
+
+# Load anomaly flags and logs from disk
+load_state()
+# If watcher was active before restart, resume monitor
+if ANOMALY_ACTIVE:
+    asyncio.create_task(toggle_anomaly(bot, state=True, threshold=THRESHOLD_LEVEL))
 
 @dp.message(Command("start"))
 async def start_handler(message: Message):
