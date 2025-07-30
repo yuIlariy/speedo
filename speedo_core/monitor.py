@@ -11,7 +11,7 @@ STATE_PATH = "speedo_storage/autospeed_state.json"
 AUTO_TASK = None
 AUTO_ACTIVE = False
 AUTO_LAST_RUN = None
-INTERVAL = 3600  # default = 1 hour
+INTERVAL = 3600  # seconds
 
 def load_autospeed_state():
     global AUTO_ACTIVE, INTERVAL, AUTO_LAST_RUN
@@ -49,6 +49,7 @@ async def perform_speedtest(bot: Bot):
         upload = st.upload() / 1_000_000
         ping = st.results.ping
         AUTO_LAST_RUN = datetime.utcnow()
+
         save_result(download, upload, ping, AUTO_LAST_RUN.isoformat())
 
         caption = (
@@ -61,8 +62,11 @@ async def perform_speedtest(bot: Bot):
         )
 
         await bot.send_message(ADMIN_ID, caption, parse_mode="HTML")
-    except:
-        pass
+    except Exception as e:
+        try:
+            await bot.send_message(ADMIN_ID, f"⚠️ Speedtest error: `{str(e)}`", parse_mode="Markdown")
+        except:
+            pass
     finally:
         save_autospeed_state()
 
@@ -77,13 +81,16 @@ async def toggle_autospeed(bot: Bot, state: bool, hours: int = 1):
 
     if state and not AUTO_ACTIVE:
         AUTO_ACTIVE = True
-        await perform_speedtest(bot)  # ✅ Force test before starting loop
+        # ✅ Run immediately and start loop
+        asyncio.create_task(perform_speedtest(bot))
         AUTO_TASK = asyncio.create_task(auto_monitor(bot))
+
     elif not state and AUTO_ACTIVE:
         AUTO_ACTIVE = False
         if AUTO_TASK:
             AUTO_TASK.cancel()
             AUTO_TASK = None
+
     save_autospeed_state()
 
 def get_autospeed_status() -> str:
@@ -98,5 +105,4 @@ def get_autospeed_status() -> str:
         f"🕒 <b>Interval:</b> {INTERVAL // 3600} hour(s)\n"
         f"🗓️ <b>Next Run:</b> {eta}"
     )
-
 
