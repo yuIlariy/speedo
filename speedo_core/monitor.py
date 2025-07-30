@@ -1,4 +1,4 @@
-import asyncio, os, json
+import asyncio, os, json, re
 from datetime import datetime, timedelta
 import speedtest
 
@@ -11,7 +11,22 @@ STATE_PATH = "speedo_storage/autospeed_state.json"
 AUTO_TASK = None
 AUTO_ACTIVE = False
 AUTO_LAST_RUN = None
-INTERVAL = 3600  # seconds
+INTERVAL = 3600  # default = 1 hour
+
+def parse_duration(raw: str) -> int:
+    """Parses duration strings like '2h', '30m', '45s' into seconds."""
+    match = re.fullmatch(r"(\d+)([hmsHMS]?)", raw.strip())
+    if not match:
+        return 3600
+    val, unit = match.groups()
+    val = int(val)
+    unit = unit.lower()
+    return (
+        val * 3600 if unit == "h" else
+        val * 60 if unit == "m" else
+        val if unit == "s" else
+        val * 3600
+    )
 
 def load_autospeed_state():
     global AUTO_ACTIVE, INTERVAL, AUTO_LAST_RUN
@@ -49,7 +64,6 @@ async def perform_speedtest(bot: Bot):
         upload = st.upload() / 1_000_000
         ping = st.results.ping
         AUTO_LAST_RUN = datetime.utcnow()
-
         save_result(download, upload, ping, AUTO_LAST_RUN.isoformat())
 
         caption = (
@@ -75,16 +89,14 @@ async def auto_monitor(bot: Bot):
         await asyncio.sleep(INTERVAL)
         await perform_speedtest(bot)
 
-async def toggle_autospeed(bot: Bot, state: bool, hours: int = 1):
+async def toggle_autospeed(bot: Bot, state: bool, duration: str = "1h"):
     global AUTO_TASK, AUTO_ACTIVE, INTERVAL
-    INTERVAL = hours * 3600
+    INTERVAL = parse_duration(duration)
 
     if state and not AUTO_ACTIVE:
         AUTO_ACTIVE = True
-        # ✅ Run immediately and start loop
-        asyncio.create_task(perform_speedtest(bot))
-        AUTO_TASK = asyncio.create_task(auto_monitor(bot))
-
+        bot.loop.create_task(perform_speedtest(bot))     # ✅ run immediately
+        AUTO_TASK = bot.loop.create_task(auto_monitor(bot))  # ✅ start loop
     elif not state and AUTO_ACTIVE:
         AUTO_ACTIVE = False
         if AUTO_TASK:
@@ -99,10 +111,17 @@ def get_autospeed_status() -> str:
         next_eta = AUTO_LAST_RUN + timedelta(seconds=INTERVAL)
         eta = next_eta.strftime("%Y-%m-%d %H:%M:%S UTC")
 
+    readable = (
+        f"{INTERVAL // 3600}h" if INTERVAL >= 3600 else
+        f"{INTERVAL // 60}m" if INTERVAL >= 60 else
+        f"{INTERVAL}s"
+    )
+
     return (
         "📶 <b>AutoSpeed Monitor</b>\n"
         f"🔌 <b>Status:</b> {'Active ✅' if AUTO_ACTIVE else 'Inactive ❌'}\n"
-        f"🕒 <b>Interval:</b> {INTERVAL // 3600} hour(s)\n"
+        f"🕒 <b>Interval:</b> {readable}\n"
         f"🗓️ <b>Next Run:</b> {eta}"
     )
 
+    
