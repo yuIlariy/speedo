@@ -1,20 +1,20 @@
 import asyncio, os, json, re
 from datetime import datetime, timedelta
 import speedtest
+from aiogram import Bot
 
 from config import ADMIN_ID
 from utils.helpers import get_uptime, save_result
-from aiogram import Bot
 
 STATE_PATH = "speedo_storage/autospeed_state.json"
 
 AUTO_TASK = None
 AUTO_ACTIVE = False
 AUTO_LAST_RUN = None
-INTERVAL = 3600  # default = 1 hour
+INTERVAL = 3600  # Default interval in seconds
 
 def parse_duration(raw: str) -> int:
-    """Parses '2h', '30m', '45s', or fallback to seconds."""
+    """Parses '2h', '30m', '45s' or fallback int into seconds."""
     match = re.fullmatch(r"(\d+)([hmsHMS]?)", raw.strip())
     if not match:
         return 3600
@@ -72,7 +72,7 @@ async def perform_speedtest(bot: Bot):
         await bot.send_message(ADMIN_ID, caption, parse_mode="HTML")
     except Exception as e:
         try:
-            await bot.send_message(ADMIN_ID, f"⚠️ Speedtest error: `{str(e)}`", parse_mode="Markdown")
+            await bot.send_message(ADMIN_ID, f"⚠️ Speedtest error:\n`{str(e)}`", parse_mode="Markdown")
         except:
             pass
     finally:
@@ -89,8 +89,8 @@ async def toggle_autospeed(bot: Bot, state: bool, duration_str: str = "1h"):
 
     if state and not AUTO_ACTIVE:
         AUTO_ACTIVE = True
-        bot.loop.create_task(perform_speedtest(bot))      # ✅ Instant run
-        AUTO_TASK = bot.loop.create_task(auto_monitor(bot))  # ✅ Start background loop
+        bot.loop.create_task(perform_speedtest(bot))         # ✅ instant test
+        AUTO_TASK = bot.loop.create_task(auto_monitor(bot))  # ✅ recurring loop
     elif not state and AUTO_ACTIVE:
         AUTO_ACTIVE = False
         if AUTO_TASK:
