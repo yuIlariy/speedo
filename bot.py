@@ -14,7 +14,6 @@ from aiogram.filters import Command
 from aiogram.client.default import DefaultBotProperties
 
 from utils.anomaly import load_state, toggle_anomaly, ANOMALY_ACTIVE, THRESHOLD_LEVEL
-from speedo_core.monitor import load_autospeed_state, toggle_autospeed, AUTO_ACTIVE, INTERVAL
 
 import speedtest  # ✅ external speedtest-cli
 from config import TOKEN, ADMIN_ID, THUMBNAIL_URL
@@ -26,7 +25,6 @@ from handlers.admin import router as admin_router
 from handlers.syschart import router as syschart_router
 from handlers.loadrings import router as loadrings_router
 from handlers.anomalywatch import router as anomaly_router
-from handlers.autospeed import router as autospeed_router
 
 
 # 💡 Dispatcher setup
@@ -41,7 +39,6 @@ dp.include_router(admin_router)
 dp.include_router(syschart_router)
 dp.include_router(loadrings_router)
 dp.include_router(anomaly_router)
-dp.include_router(autospeed_router)
 
 
 @dp.message(Command("start"))
@@ -83,8 +80,6 @@ async def help_handler(message: Message):
             "/anomalyreport — ☄️ Manually get anomaly report logs\n"
             "/anomalystatus — 👻 Anomalywatch status\n"
             "/resetanomaly — ☄️ Reset Anomaly\n"
-            "/autospeed — 🚀 On | off Auto speed\n"
-            "/autospeedstatus — 🚀 Current autospeed status\n"
             "/syschart — 📊 Graphical telemetry panel(CPU USAGE, STORAGE..) with caption overlay\n"
             "/loadrings — 💍 Lord of the rings fidelity"
         )
@@ -106,7 +101,7 @@ def get_uptime():
     return subprocess.check_output("uptime -p", shell=True).decode().strip()
 
 # 🧪 Monitoring loop
-from speedo_core.monitor import auto_monitor  # ✅ avoid shadowing
+from speedo_core.monitor import start_autospeed_monitor  # ✅ avoid shadowing
 
 async def main():
     print("✅ Speedo deployed successfully, hedgehog 🦔.")
@@ -118,10 +113,8 @@ async def main():
     if ANOMALY_ACTIVE:
         asyncio.create_task(toggle_anomaly(bot, state=True, threshold=THRESHOLD_LEVEL))
     
-    # ✅ Restore AutoSpeed if previously active
-    load_autospeed_state()
-    if AUTO_ACTIVE:
-        asyncio.create_task(toggle_autospeed(bot, True, INTERVAL // 3600))
+    # ✅ AutoSpeed monitor
+    asyncio.create_task(start_autospeed_monitor(bot))
         
     await dp.start_polling(bot)
 
