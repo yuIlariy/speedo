@@ -14,6 +14,7 @@ from aiogram.filters import Command
 from aiogram.client.default import DefaultBotProperties
 
 from utils.anomaly import load_state, toggle_anomaly, ANOMALY_ACTIVE, THRESHOLD_LEVEL
+from speedo_core.monitor import load_autospeed_state, toggle_autospeed, AUTO_ACTIVE, INTERVAL
 
 import speedtest  # ✅ external speedtest-cli
 from config import TOKEN, ADMIN_ID, THUMBNAIL_URL
@@ -25,7 +26,8 @@ from handlers.admin import router as admin_router
 from handlers.syschart import router as syschart_router
 from handlers.loadrings import router as loadrings_router
 from handlers.anomalywatch import router as anomaly_router
-from speedo_core.monitor import load_autospeed_state, toggle_autospeed, AUTO_ACTIVE, INTERVAL
+from handlers.autospeed import router as autospeed_router
+
 
 # 💡 Dispatcher setup
 bot = Bot(
