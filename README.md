@@ -21,6 +21,7 @@ Built on `aiogram` and optimized for deployment clarity, emoji-rich feedback, an
 - `/monthlytrend` — Graph showing only results from the current month
 - `/lastspeed` — Displays the latest speedtest snapshot in text format
 - `/healthscore` — Emoji-based VPS performance rating (ping, bandwidth)
+- `/netstatus` — Current net status 
 - `/anomalywatch` — 👻Auto watches your system with set threshold percentage & sends alerts ☄️
 - `anomalyreport` — ☄️ Manually pull anomalyreport logs
 - `/anomalystatus` — 👻 Anomalywatch status
@@ -154,6 +155,7 @@ screen -S speedo -X quit
 | `/anomalyreport`      | Manually pull anomalyreport 👻 |
 | `/anomalystatus`      | Know your anomalywatch status 👻 |
 | `/resetanomaly`      | Reset anomalywatch  👻 |
+| `/netstatus`      | Current network status 👻 |
 
 ---
 
