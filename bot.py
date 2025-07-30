@@ -25,6 +25,7 @@ from handlers.admin import router as admin_router
 from handlers.syschart import router as syschart_router
 from handlers.loadrings import router as loadrings_router
 from handlers.anomalywatch import router as anomaly_router
+from handlers.netstatus import router as netstatus_router
 
 
 # 💡 Dispatcher setup
@@ -39,6 +40,7 @@ dp.include_router(admin_router)
 dp.include_router(syschart_router)
 dp.include_router(loadrings_router)
 dp.include_router(anomaly_router)
+dp.include_router(netstatus_router)
 
 
 @dp.message(Command("start"))
@@ -80,6 +82,7 @@ async def help_handler(message: Message):
             "/anomalyreport — ☄️ Manually get anomaly report logs\n"
             "/anomalystatus — 👻 Anomalywatch status\n"
             "/resetanomaly — ☄️ Reset Anomaly\n"
+            "/netstatus - 🚀 Current network status\n"
             "/syschart — 📊 Graphical telemetry panel(CPU USAGE, STORAGE..) with caption overlay\n"
             "/loadrings — 💍 Lord of the rings fidelity"
         )
