@@ -40,7 +40,7 @@ def save_autospeed_state():
     except:
         pass
 
-async def run_autotest(bot: Bot):
+async def perform_speedtest(bot: Bot):
     global AUTO_LAST_RUN
     try:
         st = speedtest.Speedtest()
@@ -51,7 +51,7 @@ async def run_autotest(bot: Bot):
         AUTO_LAST_RUN = datetime.utcnow()
         save_result(download, upload, ping, AUTO_LAST_RUN.isoformat())
 
-        msg = (
+        caption = (
             f"⏰ <b>Auto Speedtest</b>\n"
             f"🕒 <b>Time:</b> {AUTO_LAST_RUN.isoformat()}\n"
             f"⬇️ <b>Download:</b> {download:.2f} Mbps\n"
@@ -59,7 +59,8 @@ async def run_autotest(bot: Bot):
             f"📶 <b>Ping:</b> {ping:.2f} ms\n"
             f"🖥 <b>VPS Uptime:</b> {get_uptime()}"
         )
-        await bot.send_message(ADMIN_ID, msg, parse_mode="HTML")
+
+        await bot.send_message(ADMIN_ID, caption, parse_mode="HTML")
     except:
         pass
     finally:
@@ -68,7 +69,7 @@ async def run_autotest(bot: Bot):
 async def auto_monitor(bot: Bot):
     while AUTO_ACTIVE:
         await asyncio.sleep(INTERVAL)
-        await run_autotest(bot)
+        await perform_speedtest(bot)
 
 async def toggle_autospeed(bot: Bot, state: bool, hours: int = 1):
     global AUTO_TASK, AUTO_ACTIVE, INTERVAL
@@ -76,7 +77,7 @@ async def toggle_autospeed(bot: Bot, state: bool, hours: int = 1):
 
     if state and not AUTO_ACTIVE:
         AUTO_ACTIVE = True
-        await run_autotest(bot)  # ✅ Instant test
+        await perform_speedtest(bot)  # ✅ Force test before starting loop
         AUTO_TASK = asyncio.create_task(auto_monitor(bot))
     elif not state and AUTO_ACTIVE:
         AUTO_ACTIVE = False
