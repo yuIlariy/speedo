@@ -69,8 +69,8 @@ async def run_autotest_and_notify(bot: Bot):
 
 async def auto_monitor(bot: Bot):
     while AUTO_ACTIVE:
-        await run_autotest_and_notify(bot)
         await asyncio.sleep(INTERVAL)
+        await run_autotest_and_notify(bot)
 
 async def toggle_autospeed(bot: Bot, state: bool, hours: int = 1):
     global AUTO_TASK, AUTO_ACTIVE, INTERVAL
@@ -78,6 +78,7 @@ async def toggle_autospeed(bot: Bot, state: bool, hours: int = 1):
 
     if state and not AUTO_ACTIVE:
         AUTO_ACTIVE = True
+        await run_autotest_and_notify(bot)  # 🧠 Run immediately after toggle
         AUTO_TASK = asyncio.create_task(auto_monitor(bot))
     elif not state and AUTO_ACTIVE:
         AUTO_ACTIVE = False
