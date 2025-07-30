@@ -11,7 +11,7 @@ STATE_PATH = "speedo_storage/autospeed_state.json"
 AUTO_TASK = None
 AUTO_ACTIVE = False
 AUTO_LAST_RUN = None
-INTERVAL = 3600  # default (1 hour)
+INTERVAL = 3600  # default = 1 hour
 
 def load_autospeed_state():
     global AUTO_ACTIVE, INTERVAL, AUTO_LAST_RUN
@@ -21,9 +21,9 @@ def load_autospeed_state():
                 data = json.load(f)
             AUTO_ACTIVE = data.get("active", False)
             INTERVAL = data.get("interval", 3600)
-            last_run_ts = data.get("last_run")
-            if last_run_ts:
-                AUTO_LAST_RUN = datetime.fromisoformat(last_run_ts)
+            ts = data.get("last_run")
+            if ts:
+                AUTO_LAST_RUN = datetime.fromisoformat(ts)
         except:
             pass
 
@@ -40,7 +40,7 @@ def save_autospeed_state():
     except:
         pass
 
-async def run_autotest_and_notify(bot: Bot):
+async def run_autotest(bot: Bot):
     global AUTO_LAST_RUN
     try:
         st = speedtest.Speedtest()
@@ -49,10 +49,9 @@ async def run_autotest_and_notify(bot: Bot):
         upload = st.upload() / 1_000_000
         ping = st.results.ping
         AUTO_LAST_RUN = datetime.utcnow()
-
         save_result(download, upload, ping, AUTO_LAST_RUN.isoformat())
 
-        caption = (
+        msg = (
             f"⏰ <b>Auto Speedtest</b>\n"
             f"🕒 <b>Time:</b> {AUTO_LAST_RUN.isoformat()}\n"
             f"⬇️ <b>Download:</b> {download:.2f} Mbps\n"
@@ -60,8 +59,7 @@ async def run_autotest_and_notify(bot: Bot):
             f"📶 <b>Ping:</b> {ping:.2f} ms\n"
             f"🖥 <b>VPS Uptime:</b> {get_uptime()}"
         )
-
-        await bot.send_message(chat_id=ADMIN_ID, text=caption, parse_mode="HTML")
+        await bot.send_message(ADMIN_ID, msg, parse_mode="HTML")
     except:
         pass
     finally:
@@ -70,7 +68,7 @@ async def run_autotest_and_notify(bot: Bot):
 async def auto_monitor(bot: Bot):
     while AUTO_ACTIVE:
         await asyncio.sleep(INTERVAL)
-        await run_autotest_and_notify(bot)
+        await run_autotest(bot)
 
 async def toggle_autospeed(bot: Bot, state: bool, hours: int = 1):
     global AUTO_TASK, AUTO_ACTIVE, INTERVAL
@@ -78,27 +76,26 @@ async def toggle_autospeed(bot: Bot, state: bool, hours: int = 1):
 
     if state and not AUTO_ACTIVE:
         AUTO_ACTIVE = True
-        await run_autotest_and_notify(bot)  # 🧠 Run immediately after toggle
+        await run_autotest(bot)  # ✅ Instant test
         AUTO_TASK = asyncio.create_task(auto_monitor(bot))
     elif not state and AUTO_ACTIVE:
         AUTO_ACTIVE = False
         if AUTO_TASK:
             AUTO_TASK.cancel()
             AUTO_TASK = None
-
     save_autospeed_state()
 
 def get_autospeed_status() -> str:
-    next_run = "Not scheduled yet"
+    eta = "Not scheduled yet"
     if AUTO_ACTIVE and AUTO_LAST_RUN:
         next_eta = AUTO_LAST_RUN + timedelta(seconds=INTERVAL)
-        next_run = next_eta.strftime("%Y-%m-%d %H:%M:%S UTC")
+        eta = next_eta.strftime("%Y-%m-%d %H:%M:%S UTC")
 
     return (
         "📶 <b>AutoSpeed Monitor</b>\n"
         f"🔌 <b>Status:</b> {'Active ✅' if AUTO_ACTIVE else 'Inactive ❌'}\n"
         f"🕒 <b>Interval:</b> {INTERVAL // 3600} hour(s)\n"
-        f"🗓️ <b>Next Run:</b> {next_run}"
+        f"🗓️ <b>Next Run:</b> {eta}"
     )
 
 
