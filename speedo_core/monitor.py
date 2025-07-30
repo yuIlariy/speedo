@@ -60,10 +60,6 @@ async def run_autotest_and_notify(bot: Bot):
         pass
 
 async def auto_monitor(bot: Bot):
-    global AUTO_ACTIVE
-    AUTO_ACTIVE = True
-    save_autospeed_state()
-
     while AUTO_ACTIVE:
         await run_autotest_and_notify(bot)
         await asyncio.sleep(INTERVAL)
@@ -71,16 +67,17 @@ async def auto_monitor(bot: Bot):
 async def toggle_autospeed(bot: Bot, state: bool, hours: int = 1):
     global AUTO_TASK, AUTO_ACTIVE, INTERVAL
     INTERVAL = hours * 3600
-    save_autospeed_state()
 
     if state and not AUTO_ACTIVE:
+        AUTO_ACTIVE = True  # ✅ Fix: moved here
         AUTO_TASK = asyncio.create_task(auto_monitor(bot))
     elif not state and AUTO_ACTIVE:
         AUTO_ACTIVE = False
         if AUTO_TASK:
             AUTO_TASK.cancel()
             AUTO_TASK = None
-        save_autospeed_state()
+
+    save_autospeed_state()
 
 def get_autospeed_status() -> str:
     return (
@@ -88,5 +85,4 @@ def get_autospeed_status() -> str:
         f"🔌 <b>Status:</b> {'Active ✅' if AUTO_ACTIVE else 'Inactive ❌'}\n"
         f"🕒 <b>Interval:</b> {INTERVAL // 3600} hour(s)"
     )
-
 
