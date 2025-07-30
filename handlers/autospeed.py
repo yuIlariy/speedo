@@ -11,24 +11,30 @@ async def cmd_autospeed(msg: Message):
     if msg.from_user.id != ADMIN_ID:
         return
 
-    parts = msg.text.split()
-    if "on" in msg.text.lower():
+    text = msg.text.lower().strip().split()
+    if "on" in text:
+        # Extract duration string if present, default to 1h
         try:
-            hours = int(parts[-1])
+            duration = next((t for t in text if t != "on"), "1h")
         except:
-            hours = 1
-        await toggle_autospeed(msg.bot, True, hours)
-        await msg.answer(f"📡 AutoSpeed enabled every {hours}h ✅")
-    elif "off" in msg.text.lower():
+            duration = "1h"
+
+        await toggle_autospeed(msg.bot, True, duration)
+        await msg.answer(f"📡 AutoSpeed enabled every {duration} ✅")
+    elif "off" in text:
         await toggle_autospeed(msg.bot, False)
         await msg.answer("🛑 AutoSpeed disabled.")
     else:
-        await msg.answer("🧭 Usage:\n/autospeed on 2 → start every 2h\n/autospeed off → stop monitor")
+        await msg.answer(
+            "🧭 Usage:\n"
+            "/autospeed on 2h → every 2 hours\n"
+            "/autospeed on 30m → every 30 minutes\n"
+            "/autospeed off → stop monitor"
+        )
 
 @router.message(Command("autospeedstatus"))
 async def cmd_autospeedstatus(msg: Message):
     if msg.from_user.id != ADMIN_ID:
         return
     await msg.answer(get_autospeed_status(), parse_mode="HTML")
-
 
