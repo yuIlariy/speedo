@@ -82,7 +82,7 @@ async def help_handler(message: Message):
             "/anomalyreport — ☄️ Manually get anomaly report logs\n"
             "/anomalystatus — 👻 Anomalywatch status\n"
             "/resetanomaly — ☄️ Reset Anomaly\n"
-            "/netstatus - 🚀 Current network status\n"
+            "/netstatus — 🚀 Current network status\n"
             "/syschart — 📊 Graphical telemetry panel(CPU USAGE, STORAGE..) with caption overlay\n"
             "/loadrings — 💍 Lord of the rings fidelity"
         )
