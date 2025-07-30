@@ -11,17 +11,16 @@ async def cmd_autospeed(msg: Message):
     if msg.from_user.id != ADMIN_ID:
         return
 
-    text = msg.text.lower().strip().split()
-    if "on" in text:
-        # Extract duration string if present, default to 1h
-        try:
-            duration = next((t for t in text if t != "on"), "1h")
-        except:
-            duration = "1h"
+    parts = msg.text.split()
+    cmd = parts[0].lower()
+    args = parts[1:]
 
+    if "on" in args:
+        # Extract duration like '3m' or '1h', default to '1h'
+        duration = next((arg for arg in args if arg != "on"), "1h")
         await toggle_autospeed(msg.bot, True, duration)
         await msg.answer(f"📡 AutoSpeed enabled every {duration} ✅")
-    elif "off" in text:
+    elif "off" in args:
         await toggle_autospeed(msg.bot, False)
         await msg.answer("🛑 AutoSpeed disabled.")
     else:
@@ -37,4 +36,5 @@ async def cmd_autospeedstatus(msg: Message):
     if msg.from_user.id != ADMIN_ID:
         return
     await msg.answer(get_autospeed_status(), parse_mode="HTML")
+
 
