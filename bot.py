@@ -25,6 +25,7 @@ from handlers.admin import router as admin_router
 from handlers.syschart import router as syschart_router
 from handlers.loadrings import router as loadrings_router
 from handlers.anomalywatch import router as anomaly_router
+from speedo_core.monitor import load_autospeed_state, toggle_autospeed, AUTO_ACTIVE, INTERVAL
 
 # 💡 Dispatcher setup
 bot = Bot(
@@ -38,6 +39,7 @@ dp.include_router(admin_router)
 dp.include_router(syschart_router)
 dp.include_router(loadrings_router)
 dp.include_router(anomaly_router)
+dp.include_router(autospeed_router)
 
 
 @dp.message(Command("start"))
@@ -79,6 +81,8 @@ async def help_handler(message: Message):
             "/anomalyreport — ☄️ Manually get anomaly report logs\n"
             "/anomalystatus — 👻 Anomalywatch status\n"
             "/resetanomaly — ☄️ Reset Anomaly\n"
+            "/autospeed — 🚀 On | off Auto speed\n"
+            "/autospeedstatus — 🚀 Current autospeed status\n"
             "/syschart — 📊 Graphical telemetry panel(CPU USAGE, STORAGE..) with caption overlay\n"
             "/loadrings — 💍 Lord of the rings fidelity"
         )
@@ -112,7 +116,11 @@ async def main():
     if ANOMALY_ACTIVE:
         asyncio.create_task(toggle_anomaly(bot, state=True, threshold=THRESHOLD_LEVEL))
     
-    asyncio.create_task(auto_monitor(bot))
+    # ✅ Restore AutoSpeed if previously active
+    load_autospeed_state()
+    if AUTO_ACTIVE:
+        asyncio.create_task(toggle_autospeed(bot, True, INTERVAL // 3600))
+        
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
