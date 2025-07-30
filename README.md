@@ -47,6 +47,8 @@ Built on `aiogram` and optimized for deployment clarity, emoji-rich feedback, an
   - Random caption flair 🤩
 
 - Auto Speedtest loop:
+  - `autospeed` — On off Auto speed
+  - `autospeedstatus` — Current auto status
   - Runs silently every hour
   - Appends results to speedlog.json
   - Sends HTML summary to admin with timestamp & uptime
