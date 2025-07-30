@@ -14,19 +14,14 @@ AUTO_LAST_RUN = None
 INTERVAL = 3600  # default = 1 hour
 
 def parse_duration(raw: str) -> int:
-    """Parses duration strings like '2h', '30m', '45s' into seconds."""
+    """Parses '2h', '30m', '45s', or fallback to seconds."""
     match = re.fullmatch(r"(\d+)([hmsHMS]?)", raw.strip())
     if not match:
         return 3600
     val, unit = match.groups()
     val = int(val)
     unit = unit.lower()
-    return (
-        val * 3600 if unit == "h" else
-        val * 60 if unit == "m" else
-        val if unit == "s" else
-        val * 3600
-    )
+    return val * 3600 if unit == "h" else val * 60 if unit == "m" else val
 
 def load_autospeed_state():
     global AUTO_ACTIVE, INTERVAL, AUTO_LAST_RUN
@@ -74,7 +69,6 @@ async def perform_speedtest(bot: Bot):
             f"📶 <b>Ping:</b> {ping:.2f} ms\n"
             f"🖥 <b>VPS Uptime:</b> {get_uptime()}"
         )
-
         await bot.send_message(ADMIN_ID, caption, parse_mode="HTML")
     except Exception as e:
         try:
@@ -89,14 +83,14 @@ async def auto_monitor(bot: Bot):
         await asyncio.sleep(INTERVAL)
         await perform_speedtest(bot)
 
-async def toggle_autospeed(bot: Bot, state: bool, duration: str = "1h"):
+async def toggle_autospeed(bot: Bot, state: bool, duration_str: str = "1h"):
     global AUTO_TASK, AUTO_ACTIVE, INTERVAL
-    INTERVAL = parse_duration(duration)
+    INTERVAL = parse_duration(duration_str)
 
     if state and not AUTO_ACTIVE:
         AUTO_ACTIVE = True
-        bot.loop.create_task(perform_speedtest(bot))     # ✅ run immediately
-        AUTO_TASK = bot.loop.create_task(auto_monitor(bot))  # ✅ start loop
+        bot.loop.create_task(perform_speedtest(bot))      # ✅ Instant run
+        AUTO_TASK = bot.loop.create_task(auto_monitor(bot))  # ✅ Start background loop
     elif not state and AUTO_ACTIVE:
         AUTO_ACTIVE = False
         if AUTO_TASK:
@@ -124,4 +118,4 @@ def get_autospeed_status() -> str:
         f"🗓️ <b>Next Run:</b> {eta}"
     )
 
-    
+
