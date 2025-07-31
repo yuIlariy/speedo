@@ -87,7 +87,7 @@ async def help_handler(message: Message):
             "/netstatus — 🚀 Current network status\n"
             "/pwatch — 🚀 Top 5 Resource-Heavy processes\n"
             "/syschart — 📊 Graphical telemetry panel(CPU USAGE, STORAGE..) with caption overlay\n"
-            "/loadrings — 💍 Lord of the rings fidelity\n"
+            "/loadrings — 💍 Lord of the rings fidelity"
 
         )
     )
