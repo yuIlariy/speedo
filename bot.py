@@ -27,7 +27,6 @@ from handlers.loadrings import router as loadrings_router
 from handlers.anomalywatch import router as anomaly_router
 from handlers.netstatus import router as netstatus_router
 from handlers.pwatch import router as pwatch_router
-from handlers.authwatcher import router as authwatch_router
 
 
 # 💡 Dispatcher setup
@@ -44,7 +43,6 @@ dp.include_router(loadrings_router)
 dp.include_router(anomaly_router)
 dp.include_router(netstatus_router)
 dp.include_router(pwatch_router)
-dp.include_router(authwatch_router)
 
 
 @dp.message(Command("start"))
@@ -90,9 +88,7 @@ async def help_handler(message: Message):
             "/pwatch — 🚀 Top 5 Resource-Heavy processes\n"
             "/syschart — 📊 Graphical telemetry panel(CPU USAGE, STORAGE..) with caption overlay\n"
             "/loadrings — 💍 Lord of the rings fidelity\n"
-            "/authwatch — 🌋 Trigger Authwatch on off\n"
-            "/authwatchs — 🚀 Authwatch Status\n"
-            "/authstats — 🌋 Daily Auth stats"
+
         )
     )
 
@@ -114,18 +110,6 @@ def get_uptime():
 # 🧪 Monitoring loop
 from speedo_core.monitor import start_autospeed_monitor  # ✅ avoid shadowing
 
-# 🛡️ Login alert task
-from utils.authwatch import notify_admin
-
-async def periodic_authwatch(bot: Bot):
-    last_alert_time = None
-    while True:
-        try:
-            await notify_admin(bot)  # Sends latest login to ADMIN_ID
-        except Exception as e:
-            print(f"[AuthWatch] Error: {e}")
-        await asyncio.sleep(15)  # 🔁 Poll interval
-        
 
 async def main():
     print("✅ Speedo deployed successfully, hedgehog 🦔.")
@@ -139,8 +123,6 @@ async def main():
     
     # ✅ AutoSpeed monitor
     asyncio.create_task(start_autospeed_monitor(bot))
-    # ⏰ Start login monitor
-    asyncio.create_task(periodic_authwatch(bot))
         
     await dp.start_polling(bot)
 
