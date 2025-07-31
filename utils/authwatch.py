@@ -1,8 +1,10 @@
 import re, datetime, random
 from dateutil import tz
 import geoip2.database
+from aiogram import Bot
+from config import ADMIN_ID
 
-GEO_READER = geoip2.database.Reader("GeoLite2-City.mmdb")  # Adjust path if needed
+GEO_READER = geoip2.database.Reader("GeoLite2-City.mmdb")  # Update path if needed
 
 THEMES = [
     {"success": "🟢🌋", "fail": "🔴⚡", "caption": "Login from {country} 🌍 — {user} @ {time}"},
@@ -52,5 +54,18 @@ def lookup_country(ip):
         return f"{response.country.name} {flag}"
     except:
         return "Unknown"
+
+async def notify_admin(bot: Bot):
+    entries = parse_auth_log()
+    if not entries:
+        return
+    summary = "📜 Latest Auth Events\n"
+    for e in entries[-5:]:  # send last 5 events
+        summary += f"{e['emoji']} {e['caption']}\n"
+    await bot.send_message(chat_id=ADMIN_ID, text=summary)
+
+
+
+
 
 
