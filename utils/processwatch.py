@@ -19,9 +19,10 @@ def top_processes(limit=5):
 
 def format_process_panel(proc_list):
     """Create formatted caption panel with emoji and aligned usage."""
-    lines = []
+    lines = ["🚀 = CPU • 💾 = RAM\n"]
     for pid, name, mem, cpu in proc_list:
         mood = "🟢" if mem + cpu > 20 else "🟡" if mem + cpu > 10 else "🔴"
-        lines.append(f"{mood} `{name}` 🧠 {cpu:.1f}% | 💾 {mem:.1f}% | PID `{pid}`")
-    return "**🕸 Process Watch Panel**\n\n" + "\n".join(lines)
+        lines.append(f"{mood} `{name}` 🚀 {cpu:.1f}% | 💾 {mem:.1f}% | PID `{pid}`")
+    return "\n".join(lines)
+
 
