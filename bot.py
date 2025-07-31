@@ -126,6 +126,8 @@ async def main():
     
     # ✅ AutoSpeed monitor
     asyncio.create_task(start_autospeed_monitor(bot))
+    # ⏰ Start login monitor
+    asyncio.create_task(periodic_authwatch(bot))
         
     await dp.start_polling(bot)
 
