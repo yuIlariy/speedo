@@ -1,10 +1,6 @@
-import re, datetime, random
-from dateutil import tz
-import geoip2.database
+import re, datetime, random, requests
 from aiogram import Bot
 from config import ADMIN_ID
-
-GEO_READER = geoip2.database.Reader("GeoLite2-City.mmdb")  # Update path if needed
 
 THEMES = [
     {"success": "🟢🌋", "fail": "🔴⚡", "caption": "Login from {country} 🌍 — {user} @ {time}"},
@@ -48,12 +44,18 @@ def parse_auth_log(path="/var/log/auth.log", max_lines=100):
     return entries
 
 def lookup_country(ip):
+    if ip == "?" or ip.startswith("127."): return "Localhost 🌐"
     try:
-        response = GEO_READER.city(ip)
-        flag = response.country.iso_code
-        return f"{response.country.name} {flag}"
+        r = requests.get(f"http://ip-api.com/json/{ip}", timeout=3)
+        if r.status_code == 200:
+            data = r.json()
+            country = data.get("country", "Unknown")
+            cc = data.get("countryCode", "")
+            flag = f" {cc}" if cc else ""
+            return f"{country}{flag}"
     except:
-        return "Unknown"
+        pass
+    return "Unknown"
 
 async def notify_admin(bot: Bot):
     entries = parse_auth_log()
@@ -63,9 +65,6 @@ async def notify_admin(bot: Bot):
     for e in entries[-5:]:  # send last 5 events
         summary += f"{e['emoji']} {e['caption']}\n"
     await bot.send_message(chat_id=ADMIN_ID, text=summary)
-
-
-
 
 
 
