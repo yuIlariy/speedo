@@ -8,7 +8,7 @@ THEMES = [
     {"success": "🛡️🧘", "fail": "🧨🕷️", "caption": "Access attempt by {user} — {status} from {country}"},
 ]
 
-def parse_auth_log(path="/var/log/auth.log", max_lines=100):
+def parse_auth_log(path="/var/log/auth.log", max_lines=50):
     try:
         with open(path, "r") as f:
             lines = f.readlines()[-max_lines:]
@@ -61,10 +61,8 @@ async def notify_admin(bot: Bot):
     entries = parse_auth_log()
     if not entries:
         return
-    summary = "📜 Latest Auth Events\n"
-    for e in entries[-5:]:  # send last 5 events
-        summary += f"{e['emoji']} {e['caption']}\n"
+    latest = entries[-1]
+    summary = f"{latest['emoji']} {latest['caption']}"
     await bot.send_message(chat_id=ADMIN_ID, text=summary)
-
 
 
