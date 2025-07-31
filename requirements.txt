@@ -3,4 +3,3 @@ speedtest-cli
 psutil
 matplotlib
 python-dateutil
-geoip2
