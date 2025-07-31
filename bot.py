@@ -114,6 +114,19 @@ def get_uptime():
 # 🧪 Monitoring loop
 from speedo_core.monitor import start_autospeed_monitor  # ✅ avoid shadowing
 
+# 🛡️ Login alert task
+from utils.authwatch import notify_admin
+
+async def periodic_authwatch(bot: Bot):
+    last_alert_time = None
+    while True:
+        try:
+            await notify_admin(bot)  # Sends latest login to ADMIN_ID
+        except Exception as e:
+            print(f"[AuthWatch] Error: {e}")
+        await asyncio.sleep(15)  # 🔁 Poll interval
+        
+
 async def main():
     print("✅ Speedo deployed successfully, hedgehog 🦔.")
     await asyncio.sleep(15)
