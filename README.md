@@ -22,6 +22,9 @@ Built on `aiogram` and optimized for deployment clarity, emoji-rich feedback, an
 - `/lastspeed` — Displays the latest speedtest snapshot in text format
 - `/healthscore` — Emoji-based VPS performance rating (ping, bandwidth)
 - `/pwatch` — Top 5 Resources-Heavy processes(with a refresh button 🔥
+- `/authwatch` — Toggle on off Authwatch(VPS login alerts
+   -`/authwatchs` — Authwatch status
+   -`authstats` — Authwatch stats
 - `/netstatus` — Current net status 
 - `/anomalywatch` — 👻Auto watches your system with set threshold percentage & sends alerts ☄️
 - `anomalyreport` — ☄️ Manually pull anomalyreport logs
@@ -158,6 +161,7 @@ screen -S speedo -X quit
 | `/resetanomaly`      | Reset anomalywatch  👻 |
 | `/netstatus`      | Current network status 👻 |
 | `/pwatch`      | Top 5 resource-heavy processes 👻 |
+| `/authwatch` , `/authwatchs` , `/authstats` | Authwatch VPS login🌋 |
 
 ---
 
