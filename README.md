@@ -21,7 +21,7 @@ Built on `aiogram` and optimized for deployment clarity, emoji-rich feedback, an
 - `/monthlytrend` — Graph showing only results from the current month
 - `/lastspeed` — Displays the latest speedtest snapshot in text format
 - `/healthscore` — Emoji-based VPS performance rating (ping, bandwidth)
-- `/pwatch` — Top 5 Resources-Heavy processes
+- `/pwatch` — Top 5 Resources-Heavy processes(with a refresh button 🔥
 - `/netstatus` — Current net status 
 - `/anomalywatch` — 👻Auto watches your system with set threshold percentage & sends alerts ☄️
 - `anomalyreport` — ☄️ Manually pull anomalyreport logs
