@@ -14,7 +14,7 @@ async def pwatch_handler(message: Message):
         return
 
     procs = top_processes()
-    panel = format_process_panel(procs)
+    panel = "**🕸 Process Watch Panel**\n🚀 = CPU • 💾 = RAM\n\n" + format_process_panel(procs)
 
     kb = InlineKeyboardBuilder()
     kb.button(text="🔄 Refresh", callback_data="refresh_pwatch")
@@ -23,7 +23,7 @@ async def pwatch_handler(message: Message):
 @router.callback_query(lambda c: c.data == "refresh_pwatch")
 async def pwatch_refresh(query: CallbackQuery):
     procs = top_processes()
-    panel = format_process_panel(procs)
+    panel = "**🕸 Process Watch Panel**\n🚀 = CPU • 💾 = RAM\n\n" + format_process_panel(procs)
 
     kb = InlineKeyboardBuilder()
     kb.button(text="🔄 Refresh", callback_data="refresh_pwatch")
