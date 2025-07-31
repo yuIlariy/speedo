@@ -27,6 +27,7 @@ from handlers.loadrings import router as loadrings_router
 from handlers.anomalywatch import router as anomaly_router
 from handlers.netstatus import router as netstatus_router
 from handlers.pwatch import router as pwatch_router
+from handlers.authwatcher import router as authwatch_router
 
 
 # 💡 Dispatcher setup
@@ -43,6 +44,7 @@ dp.include_router(loadrings_router)
 dp.include_router(anomaly_router)
 dp.include_router(netstatus_router)
 dp.include_router(pwatch_router)
+dp.include_router(authwatch_router)
 
 
 @dp.message(Command("start"))
@@ -87,7 +89,10 @@ async def help_handler(message: Message):
             "/netstatus — 🚀 Current network status\n"
             "/pwatch — 🚀 Top 5 Resource-Heavy processes\n"
             "/syschart — 📊 Graphical telemetry panel(CPU USAGE, STORAGE..) with caption overlay\n"
-            "/loadrings — 💍 Lord of the rings fidelity"
+            "/loadrings — 💍 Lord of the rings fidelity\n"
+            "/authwatch — 🌋 Trigger Authwatch on off\n"
+            "/authwatchs — 🚀 Authwatch Status\n"
+            "/authstats — 🌋 Daily Auth stats"
         )
     )
 
