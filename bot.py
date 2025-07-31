@@ -26,6 +26,7 @@ from handlers.syschart import router as syschart_router
 from handlers.loadrings import router as loadrings_router
 from handlers.anomalywatch import router as anomaly_router
 from handlers.netstatus import router as netstatus_router
+from handlers.pwatch import router as pwatch_router
 
 
 # 💡 Dispatcher setup
@@ -41,6 +42,7 @@ dp.include_router(syschart_router)
 dp.include_router(loadrings_router)
 dp.include_router(anomaly_router)
 dp.include_router(netstatus_router)
+dp.include_router(pwatch_router)
 
 
 @dp.message(Command("start"))
