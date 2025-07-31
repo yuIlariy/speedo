@@ -161,7 +161,7 @@ screen -S speedo -X quit
 | `/resetanomaly`      | Reset anomalywatch  👻 |
 | `/netstatus`      | Current network status 👻 |
 | `/pwatch`      | Top 5 resource-heavy processes 👻 |
-| `/authwatch` , `/authwatchs` , `/authstats` | Authwatch VPS login🌋 |
+| `/authwatch` , `/authwatchs` , `/authstats` | Authwatch VPS logins 🌋 |
 
 ---
 
