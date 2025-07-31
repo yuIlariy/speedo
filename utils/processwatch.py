@@ -24,10 +24,10 @@ def format_process_panel(proc_list):
     for pid, name, mem, cpu in proc_list:
         total = mem + cpu
         if total > 50:
-            mood = "🔥 Overloaded"
+            mood = "🌋 Overloaded"
             icon = "🔴"
         elif total > 20:
-            mood = "🧠 Active"
+            mood = "🔥 Active"
             icon = "🟢"
         elif total > 10:
             mood = "🌡 Moderate"
