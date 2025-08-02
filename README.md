@@ -113,7 +113,7 @@ THUMBNAIL_URL = "https://telegra.ph/file/e292b12890b8b4b9dcbd1.jpg"
 python3 bot.py
 ```
 
-### 🧠 Run in Background with Screen
+### 🦔 Run in Background with Screen
 
 ```bash
 screen -S speedo
