@@ -1,15 +1,22 @@
 import psutil
 
 def top_processes(limit=5):
-    """Return top N processes sorted by RAM + CPU usage."""
+    """Return top N processes sorted by true system-relative RAM + CPU usage."""
     procs = []
-    for p in psutil.process_iter(['pid', 'name', 'memory_percent', 'cpu_percent']):
+    cpu_count = psutil.cpu_count(logical=True)
+    ram_total = psutil.virtual_memory().total
+
+    for p in psutil.process_iter(['pid', 'name']):
         try:
-            info = p.info
-            pid = info['pid']
-            name = info['name'] or '—'
-            mem = info['memory_percent'] or 0
-            cpu = info['cpu_percent'] or 0
+            pid = p.pid
+            name = p.name() or '—'
+            cpu_raw = p.cpu_percent(interval=0.1)
+            ram_raw = p.memory_info().rss
+
+            # ✅ Normalize to system-wide percentages
+            cpu = (cpu_raw / (100 * cpu_count)) * 100
+            mem = (ram_raw / ram_total) * 100
+
             procs.append((pid, name, mem, cpu))
         except:
             continue
