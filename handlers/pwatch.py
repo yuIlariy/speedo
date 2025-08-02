@@ -20,7 +20,7 @@ def build_panel():
     mood = "🌋 Overloaded" if cpu_sum > 80 or ram_sum > 85 else \
            "🌡 Moderate" if cpu_sum > 50 or ram_sum > 60 else "❄️ Chill"
 
-    panel += f"\n\n🌌 **Panel Total** — 🚀 {cpu_sum:.1f}% • 💾 {ram_sum:.1f}% • {mood}"
+    panel += f"\n\n🌌 **Total Usage** — 🚀 {cpu_sum:.1f}% • 💾 {ram_sum:.1f}% • {mood}"
     return panel
 
 @router.message(Command("pwatch"))
