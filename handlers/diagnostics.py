@@ -13,7 +13,7 @@ from utils.helpers import get_sysinfo
 
 router = Router()
 
-@router.message(Command("pingtest"))
+@router.message(Command("ping"))
 async def pingtest_handler(message: Message, command: CommandObject):
     if message.from_user.id != ADMIN_ID:
         await message.answer("🚫 Admin only.")
