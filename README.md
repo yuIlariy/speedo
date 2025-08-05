@@ -26,7 +26,7 @@ Built on `aiogram` and optimized for deployment clarity, emoji-rich feedback, an
 - `anomalyreport` — ☄️ Manually pull anomalyreport logs
 - `/anomalystatus` — 👻 Anomalywatch status
 - `/resetanomaly` — ☄️ Reset Anomaly 
-- `/pingtest` — ICMP ping test to 8.8.8.8, 1.1.1.1 ... if target address not specified (packet loss, latency stats)
+- `/ping` — ICMP ping test to 8.8.8.8, 1.1.1.1 ... if target address not specified (packet loss, latency stats)
 - `/exportlog` — Sends the full `speedlog.json` file as a document
 - `/sysinfo` — Current VPS system info:
   - 🧠 CPU model
@@ -145,7 +145,7 @@ screen -S speedo -X quit
 | `/monthlytrend`   | Plot only the tests from the current month       |
 | `/lastspeed`      | Latest speedtest summary                        |
 | `/healthscore`    | VPS performance rating with emoji verdict        |
-| `/pingtest`       | Ping a target address(or defaults) to check network health             |
+| `/ping`       | Ping a target address(or defaults) to check network health             |
 | `/exportlog`      | Download `speedlog.json`                         |
 | `/sysinfo`        | VPS system snapshot                             |
 | `/bootcheck`      | VPS boot time & uptime                           |
