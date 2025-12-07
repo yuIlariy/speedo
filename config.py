@@ -1,8 +1,14 @@
 # config.py
 
-RESULTS_LOG = "results/speedlog.json"
-TREND_IMAGE = "results/speedplot.png"
-TOKEN = "your_actual_bot_token"
-ADMIN_ID = 6318135266  # Replace with your Telegram user ID
-THUMBNAIL_URL = "https://telegra.ph/file/e292b12890b8b4b9dcbd1.jpg"
-LOG_FILE = "logs/bot.log"
+
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+RESULTS_LOG = os.getenv("RESULTS_LOG", "results/speedlog.json")
+TREND_IMAGE = os.getenv("TREND_IMAGE", "results/speedplot.png")
+TOKEN = os.getenv("TOKEN")
+ADMIN_ID = int(os.getenv("ADMIN_ID", "0"))
+THUMBNAIL_URL = os.getenv("THUMBNAIL_URL")
+LOG_FILE = os.getenv("LOG_FILE", "logs/bot.log")
