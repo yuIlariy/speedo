@@ -3,3 +3,4 @@ speedtest-cli
 psutil
 matplotlib
 python-dateutil
+python-dotenv
