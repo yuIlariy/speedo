@@ -95,7 +95,7 @@ pip3 install -r requirements.txt
 
 ## ⚙️ Configuration
 
-Edit the `config.py` file:
+Rename the `sample.env` file to `.env` and edit the following values:
 
 ```python
 TOKEN = "your_telegram_bot_token"
