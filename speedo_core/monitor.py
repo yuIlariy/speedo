@@ -1,6 +1,5 @@
 import asyncio, os, json
 from datetime import datetime, timedelta
-import speedtest
 from aiogram import Bot
 from config import ADMIN_ID
 from utils.helpers import get_uptime, save_result
@@ -25,11 +24,25 @@ def save_autospeed_state():
 async def perform_speedtest(bot: Bot):
     global AUTO_LAST_RUN
     try:
-        st = speedtest.Speedtest()
-        st.get_best_server()
-        download = st.download() / 1_000_000
-        upload = st.upload() / 1_000_000
-        ping = st.results.ping
+        # Run official Ookla speedtest CLI asynchronously in the background
+        process = await asyncio.create_subprocess_exec(
+            'speedtest', '--accept-license', '--accept-gdpr', '-f', 'json',
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+        stdout, stderr = await process.communicate()
+        
+        if process.returncode != 0:
+            print(f"Auto-speedtest failed: {stderr.decode('utf-8').strip() or stdout.decode('utf-8').strip()}")
+            return
+            
+        data = json.loads(stdout.decode('utf-8'))
+        
+        # Convert Ookla's bytes/second to Mbps
+        download = data['download']['bandwidth'] / 125_000
+        upload = data['upload']['bandwidth'] / 125_000
+        ping = data['ping']['latency']
+        
         AUTO_LAST_RUN = datetime.utcnow()
         save_result(download, upload, ping, AUTO_LAST_RUN.isoformat())
 
@@ -42,8 +55,8 @@ async def perform_speedtest(bot: Bot):
             f"🖥 <b>VPS Uptime:</b> {get_uptime()}"
         )
         await bot.send_message(ADMIN_ID, caption)
-    except:
-        pass
+    except Exception as e:
+        print(f"Auto-speedtest error: {e}")
     finally:
         save_autospeed_state()
 
@@ -51,4 +64,3 @@ async def start_autospeed_monitor(bot: Bot):
     while True:
         await perform_speedtest(bot)
         await asyncio.sleep(INTERVAL)
-
