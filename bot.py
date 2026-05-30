@@ -46,24 +46,47 @@ dp.include_router(pwatch_router)
 @dp.message(Command("start"))
 async def start_handler(message: Message):
     if message.from_user.id != ADMIN_ID:
-        await message.answer("🔒 Access Denied. Unauthorized terminal instance.")
+        await message.answer("🚫 This bot is restricted to admin only.")
         return
 
-    await message.answer(
-        "🛸 <b>Welcome to Speedo Core Engine v2.0</b> 🦔\n\n"
-        "Your automated high-frequency telemetry system is armed and ready.\n\n"
-        "<b>Available Core Executables:</b>\n"
-        "├ /speedtest — 🚀 Execute high-precision official Ookla network metric run\n"
-        "├ /lastspeed — 📦 Fetch latest recorded network state from log registry\n"
-        "├ /healthscore — 🧠 Run holistic hardware and connectivity structural analysis\n"
-        "├ /trend — 📈 Render localized visual throughput dispersion graph\n"
-        "├ /monthlytrend — 📅 Render monthly macroeconomic performance drift chart\n"
-        "├ /sysinfo — 📋 Pull immediate system specification array\n"
-        "├ /netstatus — 🌐 Run deep active interface configuration socket diagnostic\n"
-        "├ /anomalywatch — 🚨 Toggle active runtime performance deviation protection loop\n"
-        "├ /pwatch — 🚀 Top 5 Resource-Heavy processes\n"
-        "├ /syschart — 📊 Graphical telemetry panel(CPU USAGE, STORAGE..) with caption overlay\n"
-        "└ /loadrings — 💍 Lord of the rings fidelity"
+    await message.answer_photo(
+        photo="https://telegra.ph/file/ec17880d61180d3312d6a.jpg",
+        caption=(
+            "<b>👋 Welcome, master of machines!</b>\n\n"
+            "🚀 Speedo Bot is locked, loaded, and watching your VPS like royalty 👑\n\n"
+            "💬 Need help? Use /help to view your full command arsenal.\n\n"
+            "📈 Graphs, logs, health checks — all under your control."
+        )
+    )
+
+@dp.message(Command("help"))
+async def help_handler(message: Message):
+    if message.from_user.id != ADMIN_ID:
+        await message.answer("🚫 Help is reserved for sysadmin eyes only.")
+        return
+
+    await message.answer_photo(
+        photo="https://telegra.ph/file/ec17880d61180d3312d6a.jpg",
+        caption=(
+            "<b>🧾 Command Panel — Speedo NOC Suite 👑</b>\n\n"
+            "/speedtest — 🚨 run speedtest\n"
+            "/sysinfo — ☁️ Sys info\n"
+            "/lastspeed — ⚡ latest speedtest\n"
+            "/trend — 📈 graphical trend of recent tests\n"
+            "/healthscore — 🎖️ VPS health score\n"
+            "/ping — 🚀 Ping Check (default or custom target)\n"
+            "/exportlog — 🧾 speedtest log dump\n"
+            "/monthlytrend — 📆 monthly graph\n"
+            "/bootcheck — 🚀 VPS Boot Check\n"
+            "/anomalywatch on | off — 👻 Toggle system alert when thresholds breached\n"
+            "/anomalyreport — ☄️ Manually get anomaly report logs\n"
+            "/anomalystatus — 👻 Anomalywatch status\n"
+            "/resetanomaly — ☄️ Reset Anomaly\n"
+            "/netstatus — 🚀 Current network status\n"
+            "/pwatch — 🚀 Top 5 Resource-Heavy processes\n"
+            "/syschart — 📊 Graphical telemetry panel(CPU USAGE, STORAGE..) with caption overlay\n"
+            "/loadrings — 💍 Lord of the rings fidelity"
+        )
     )
 
 
@@ -84,7 +107,7 @@ def get_uptime():
 
 
 # 🧪 Monitoring loop
-from speedo_core.monitor import start_autospeed_monitor  # ✅ avoid shadowing
+from speedo_core.monitor import start_autospeed_monitor  
 
 
 async def main():
@@ -93,9 +116,12 @@ async def main():
    
     # Load anomaly flags and logs from disk
     load_state()
+    # If watcher was active before restart, resume monitor
+    if ANOMALY_ACTIVE:
+        asyncio.create_task(toggle_anomaly(bot, state=True, threshold=THRESHOLD_LEVEL))
     
     # Start background polling loops safely without blocking message processor
-    # 🚨 ASSIGNED TO VARIABLE TO PREVENT GARBAGE COLLECTION 🚨
+    # 🚨 ASSIGNED TO VARIABLE TO PREVENT GARBAGE COLLECTION
     monitor_task = asyncio.create_task(start_autospeed_monitor(bot))
     
     # Run long-polling session
