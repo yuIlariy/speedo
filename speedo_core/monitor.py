@@ -4,6 +4,7 @@ import json
 import shutil
 from datetime import datetime
 from aiogram import Bot
+
 from config import ADMIN_ID
 from utils.helpers import get_uptime, save_result
 
@@ -26,6 +27,7 @@ def save_autospeed_state():
 async def perform_speedtest(bot: Bot):
     global AUTO_LAST_RUN
     
+    # 🔍 Auto-detect the exact binary path to avoid PATH execution errors
     binary_path = shutil.which('speedtest')
     if not binary_path:
         print("🚨 Auto-speedtest error: 'speedtest' binary not found in system PATH.")
@@ -33,18 +35,17 @@ async def perform_speedtest(bot: Bot):
 
     process = None
     try:
-        # Run official Ookla speedtest CLI asynchronously
         process = await asyncio.create_subprocess_exec(
             binary_path, '--accept-license', '--accept-gdpr', '-f', 'json',
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE
         )
         
-        # Enforce a strict 3-minute timeout to handle deadlocks or hung routes gracefully
+        # ⏳ 3-MINUTE TIMEOUT: Force-kills the process if Ookla hangs
         stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=180.0)
         
         if process.returncode != 0:
-            print(f"Auto-speedtest failed: {stderr.decode('utf-8').strip() or stdout.decode('utf-8').strip()}")
+            print(f"🚨 Auto-speedtest failed: {stderr.decode('utf-8').strip() or stdout.decode('utf-8').strip()}")
             return
             
         data = json.loads(stdout.decode('utf-8'))
@@ -67,13 +68,16 @@ async def perform_speedtest(bot: Bot):
         )
         await bot.send_message(ADMIN_ID, caption)
         print("✅ Auto-speedtest executed successfully.")
+        
     except asyncio.TimeoutError:
-        print("🚨 Auto-speedtest timed out! The process took too long.")
+        print("🚨 Auto-speedtest timed out! The Ookla server hung. Killing process.")
         if process:
-            try: process.kill()
-            except Exception: pass
+            try:
+                process.kill()
+            except Exception:
+                pass
     except Exception as e:
-        print(f"Auto-speedtest error: {e}")
+        print(f"🚨 Auto-speedtest exception: {e}")
     finally:
         save_autospeed_state()
 
@@ -83,7 +87,7 @@ async def start_autospeed_monitor(bot: Bot):
         try:
             await perform_speedtest(bot)
         except Exception as e:
-            print(f"🚨 Critical exception inside monitor loop structure: {e}")
+            # Catch absolutely any loop crash to ensure it keeps ticking
+            print(f"🚨 Monitor loop caught a critical error: {e}")
             
-        # 💤 Sleep explicitly for 1 hour before attempting next cycle
         await asyncio.sleep(INTERVAL)
