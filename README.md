@@ -164,9 +164,7 @@ psutil
 
 ```
 ## 📎 Developer Credits 🤩🚨
-Original repo: yuIlariy/speedo
+Original repo: [YuIlariy/speedo](https://github.com/yuIlariy/speedo)
 🍥 Telegram VPS bot extension by 🧠 Yuilariy x MS Copilot
 🌍 Speedtest with style. Fork it. Use it. Credit it. Rule it 👑
-```
-
 ```
