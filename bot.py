@@ -95,7 +95,8 @@ async def main():
     load_state()
     
     # Start background polling loops safely without blocking message processor
-    asyncio.create_task(start_autospeed_monitor(bot))
+    # 🚨 ASSIGNED TO VARIABLE TO PREVENT GARBAGE COLLECTION 🚨
+    monitor_task = asyncio.create_task(start_autospeed_monitor(bot))
     
     # Run long-polling session
     await dp.start_polling(bot)
