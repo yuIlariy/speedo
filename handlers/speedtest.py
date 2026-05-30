@@ -2,14 +2,12 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import json
 import random
+import asyncio
 from aiogram.filters import Command
 from aiogram.types.input_file import FSInputFile
 
 from aiogram import Router
 from aiogram.types import Message
-from aiogram.filters import Command
-
-import speedtest  # ✅ external CLI wrapper
 
 from config import ADMIN_ID, THUMBNAIL_URL, RESULTS_LOG
 from utils.helpers import get_uptime, mask_ip, save_result, generate_plot
@@ -22,21 +20,67 @@ async def speedtest_handler(message: Message):
         await message.answer("🚫 This command is for admin only.")
         return
 
-    await message.answer("Running speedtest... ⏳")
+    await message.answer("Running official Ookla speedtest... ⏳")
 
-    st = speedtest.Speedtest()
-    st.get_best_server()
-    download = st.download() / 1_000_000
-    upload = st.upload() / 1_000_000
-    ping = st.results.ping
+    try:
+        # Run official Ookla speedtest CLI asynchronously 
+        process = await asyncio.create_subprocess_exec(
+            'speedtest', '--accept-license', '--accept-gdpr', '-f', 'json',
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+        stdout, stderr = await process.communicate()
+        
+        if process.returncode != 0:
+            error_msg = stderr.decode('utf-8').strip() or stdout.decode('utf-8').strip()
+            await message.answer(f"⚠️ Speedtest failed.\nError: {error_msg}")
+            return
+            
+        data = json.loads(stdout.decode('utf-8'))
+    except FileNotFoundError:
+        await message.answer("⚠️ Official Ookla 'speedtest' CLI is not installed on the system.")
+        return
+    except Exception as e:
+        await message.answer(f"⚠️ Error parsing Speedtest CLI output: {e}")
+        return
+
+    # Ookla CLI outputs bandwidth in Bytes per second.
+    # To get Mbps matching the old logic: (bytes/s * 8) / 1,000,000 = bytes/s / 125,000
+    download = data['download']['bandwidth'] / 125_000
+    upload = data['upload']['bandwidth'] / 125_000
+    ping = data['ping']['latency']
     timestamp = datetime.utcnow().isoformat()
 
     save_result(download, upload, ping, timestamp)
 
-    server = st.get_best_server()
-    client = st.config['client']
+    # Safely map variables for the exact required output structure
+    server_data = data.get('server', {})
+    interface_data = data.get('interface', {})
+    
+    server = {
+        'name': server_data.get('name', 'Unknown'),
+        'country': server_data.get('location', 'Unknown'),
+        'cc': server_data.get('country', 'N/A'),
+        'sponsor': server_data.get('host', 'Ookla'),
+        'latency': ping,
+        'lat': 'N/A', 
+        'lon': 'N/A'
+    }
+    
+    client = {
+        'ip': interface_data.get('externalIp', '0.0.0.0'),
+        'lat': 'N/A',
+        'lon': 'N/A',
+        'country': 'N/A',
+        'isp': data.get('isp', 'Unknown')
+    }
+
     masked_ip = mask_ip(client['ip'])
     uptime = get_uptime()
+
+    # Convert total bytes to Megabytes for the caption
+    bytes_sent = data['upload']['bytes'] / 1_000_000
+    bytes_received = data['download']['bytes'] / 1_000_000
 
     caption = (
         f"<b>🚀 SPEEDTEST INFO 🚀</b>\n"
@@ -45,8 +89,8 @@ async def speedtest_handler(message: Message):
         f"├ Ping: {ping:.3f} ms\n"
         f"├ Time:\n{timestamp}\n"
         f"├ VPS Uptime: {uptime}\n"
-        f"├ Data Sent: {st.results.bytes_sent / 1_000_000:.2f}MB\n"
-        f"├ Data Received: {st.results.bytes_received / 1_000_000:.2f}MB\n\n"
+        f"├ Data Sent: {bytes_sent:.2f}MB\n"
+        f"├ Data Received: {bytes_received:.2f}MB\n\n"
         f"<b>🌐 SPEEDTEST SERVER 🌐</b>\n"
         f"├ Name: {server['name']}\n"
         f"├ Country: {server['country']}, {server['cc']}\n"
@@ -289,5 +333,3 @@ async def trend_handler(message: Message):
         )
     except Exception as e:
         await message.answer(f"⚠️ No results found to plot.\n{e}")
-
-
