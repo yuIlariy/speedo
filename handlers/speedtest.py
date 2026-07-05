@@ -15,15 +15,17 @@ from utils.helpers import get_uptime, mask_ip, save_result, generate_plot
 
 router = Router()
 
-async def fetch_ip_geo(ip_address: str) -> dict:
-    """Asynchronously fetch IP geolocation data."""
-    if not ip_address or ip_address == '0.0.0.0':
+async def fetch_ip_geo(query: str) -> dict:
+    """Asynchronously fetch IP geolocation data for an IP or domain."""
+    if not query or query == '0.0.0.0':
         return {}
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.get(f"http://ip-api.com/json/{ip_address}") as response:
+            async with session.get(f"http://ip-api.com/json/{query}") as response:
                 if response.status == 200:
-                    return await response.json()
+                    data = await response.json()
+                    if data.get("status") == "success":
+                        return data
     except Exception:
         pass
     return {}
@@ -66,34 +68,44 @@ async def speedtest_handler(message: Message):
 
     save_result(download, upload, ping, timestamp)
 
-    # Safely map variables for the exact required output structure
     server_data = data.get('server', {})
     interface_data = data.get('interface', {})
     
+    # Extract IPs/Domains for geolocation mapping
+    raw_ip = interface_data.get('externalIp', '0.0.0.0')
+    raw_host = server_data.get('host', '')
+    server_query = raw_host.split(':')[0] if raw_host else ''
+    
+    # Fetch geolocation data dynamically for both Client IP and Server Domain concurrently
+    tasks = [fetch_ip_geo(raw_ip)]
+    if server_query:
+        tasks.append(fetch_ip_geo(server_query))
+        
+    results = await asyncio.gather(*tasks)
+    client_geo = results[0] or {}
+    server_geo = results[1] if len(results) > 1 and results[1] else {}
+
+    # Map the Sponsor to 'name' (removes the link) and inject the fetched Server Lat/Lon
     server = {
         'name': server_data.get('name', 'Unknown'),
-        'country': server_data.get('location', 'Unknown'),
-        'cc': server_data.get('country', 'N/A'),
-        'sponsor': server_data.get('host', 'Ookla'),
+        'location': server_data.get('location', 'Unknown'),
+        'country': server_data.get('country', 'N/A'),
+        'sponsor': server_data.get('name', 'Unknown'),
         'latency': ping,
-        'lat': 'N/A', 
-        'lon': 'N/A'
+        'lat': server_geo.get('lat', 'N/A'), 
+        'lon': server_geo.get('lon', 'N/A')
     }
-    
-    # Fetch geolocation data dynamically
-    raw_ip = interface_data.get('externalIp', '0.0.0.0')
-    geo_data = await fetch_ip_geo(raw_ip)
 
     client = {
         'ip': raw_ip,
-        'lat': geo_data.get('lat', 'N/A'),
-        'lon': geo_data.get('lon', 'N/A'),
-        'country': geo_data.get('country', data.get('country', 'N/A')),
-        'city': geo_data.get('city', 'Unknown'),
-        'region': geo_data.get('regionName', 'Unknown'),
-        'isp': geo_data.get('isp', data.get('isp', 'Unknown')),
-        'asn': geo_data.get('as', 'Unknown'),
-        'org': geo_data.get('org', 'Unknown')
+        'lat': client_geo.get('lat', 'N/A'),
+        'lon': client_geo.get('lon', 'N/A'),
+        'country': client_geo.get('country', data.get('country', 'N/A')),
+        'city': client_geo.get('city', 'Unknown'),
+        'region': client_geo.get('regionName', 'Unknown'),
+        'isp': client_geo.get('isp', data.get('isp', 'Unknown')),
+        'asn': client_geo.get('as', 'Unknown'),
+        'org': client_geo.get('org', 'Unknown')
     }
 
     masked_ip = mask_ip(client['ip'])
@@ -114,7 +126,7 @@ async def speedtest_handler(message: Message):
         f"├ Data Received: {bytes_received:.2f}MB\n\n"
         f"<b>🌐 SPEEDTEST SERVER 🌐</b>\n"
         f"├ Name: {server['name']}\n"
-        f"├ Country: {server['country']}, {server['cc']}\n"
+        f"├ Country: {server['location']}, {server['country']}\n"
         f"├ Sponsor: {server['sponsor']}\n"
         f"├ Latency: {server['latency']:.3f} ms\n"
         f"├ Latitude: {server['lat']}\n"
