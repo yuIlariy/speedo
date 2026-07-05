@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import json
 import random
 import asyncio
+import aiohttp
 from aiogram.filters import Command
 from aiogram.types.input_file import FSInputFile
 
@@ -13,6 +14,19 @@ from config import ADMIN_ID, THUMBNAIL_URL, RESULTS_LOG
 from utils.helpers import get_uptime, mask_ip, save_result, generate_plot
 
 router = Router()
+
+async def fetch_ip_geo(ip_address: str) -> dict:
+    """Asynchronously fetch IP geolocation data."""
+    if not ip_address or ip_address == '0.0.0.0':
+        return {}
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"http://ip-api.com/json/{ip_address}") as response:
+                if response.status == 200:
+                    return await response.json()
+    except Exception:
+        pass
+    return {}
 
 @router.message(Command("speedtest"))
 async def speedtest_handler(message: Message):
@@ -45,7 +59,6 @@ async def speedtest_handler(message: Message):
         return
 
     # Ookla CLI outputs bandwidth in Bytes per second.
-    # To get Mbps matching the old logic: (bytes/s * 8) / 1,000,000 = bytes/s / 125,000
     download = data['download']['bandwidth'] / 125_000
     upload = data['upload']['bandwidth'] / 125_000
     ping = data['ping']['latency']
@@ -67,12 +80,20 @@ async def speedtest_handler(message: Message):
         'lon': 'N/A'
     }
     
+    # Fetch geolocation data dynamically
+    raw_ip = interface_data.get('externalIp', '0.0.0.0')
+    geo_data = await fetch_ip_geo(raw_ip)
+
     client = {
-        'ip': interface_data.get('externalIp', '0.0.0.0'),
-        'lat': 'N/A',
-        'lon': 'N/A',
-        'country': 'N/A',
-        'isp': data.get('isp', 'Unknown')
+        'ip': raw_ip,
+        'lat': geo_data.get('lat', 'N/A'),
+        'lon': geo_data.get('lon', 'N/A'),
+        'country': geo_data.get('country', data.get('country', 'N/A')),
+        'city': geo_data.get('city', 'Unknown'),
+        'region': geo_data.get('regionName', 'Unknown'),
+        'isp': geo_data.get('isp', data.get('isp', 'Unknown')),
+        'asn': geo_data.get('as', 'Unknown'),
+        'org': geo_data.get('org', 'Unknown')
     }
 
     masked_ip = mask_ip(client['ip'])
@@ -100,10 +121,11 @@ async def speedtest_handler(message: Message):
         f"├ Longitude: {server['lon']}\n\n"
         f"<b>👤 CLIENT DETAILS 👤</b>\n"
         f"├ IP Address: {masked_ip}\n"
-        f"├ Latitude: {client['lat']}\n"
-        f"├ Longitude: {client['lon']}\n"
-        f"├ Country: {client['country']}\n"
-        f"├ ISP: {client['isp']}\n\n"
+        f"├ Location: {client['city']}, {client['region']}, {client['country']}\n"
+        f"├ Coordinates: {client['lat']}, {client['lon']}\n"
+        f"├ ISP: {client['isp']}\n"
+        f"├ ASN: {client['asn']}\n"
+        f"├ Organization: {client['org']}\n\n"
         f'<b>🛸 Powered by <a href="https://github.com/yuIlariy/speedo">Speedo</a> 🪆</b>'
     )
 
@@ -174,7 +196,6 @@ async def healthscore_handler(message: Message):
         await message.answer(reply)
     except Exception as e:
         await message.answer(f"⚠️ Error calculating health score.\n{e}")
-
 
 
 @router.message(Command("monthlytrend"))
@@ -258,7 +279,6 @@ async def monthlytrend_handler(message: Message):
         )
     except Exception as e:
         await message.answer(f"⚠️ Error plotting monthly trend\n{e}")
-
 
 
 @router.message(Command("trend"))
